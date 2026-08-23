@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Aegis ingress (Prometheus /metrics endpoint ships with PROMPT 4.1;
+  # job kept active so dashboards light up the moment it lands).
+  - job_name: aegis-ingest
+    static_configs:
+      - targets: ["ingest:9102"]
+
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+
+  - job_name: redis
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+
+  - job_name: redpanda
+    static_configs:
+      - targets: ["redpanda:9644"]
+
+  - job_name: minio
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ["minio:9000"]

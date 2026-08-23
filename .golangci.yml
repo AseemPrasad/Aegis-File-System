@@ -1,0 +1,22 @@
+# golangci-lint configuration — zero-warning gate (PROMPT 1.2)
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - errcheck      # unchecked errors are contract violations at plane boundaries
+    - govet
+    - staticcheck
+    - unused
+    - gosec         # security posture baseline (I-3 discipline)
+    - revive        # idiomatic style with configurable rules
+    - copyloopvar
+  disable-all: false
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    - path: _test\.go
+      linters: [gosec] # test fixtures use dev-only credentials by design

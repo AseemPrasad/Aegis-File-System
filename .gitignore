@@ -1,0 +1,37 @@
+# --- Rust --------------------------------------------------------------------
+/target/
+**/*.rs.bk
+
+# --- Go ----------------------------------------------------------------------
+*.exe
+*.test
+*.out
+coverage.out
+
+# --- Node/tooling noise ------------------------------------------------------
+node_modules/
+
+# --- Terraform ---------------------------------------------------------------
+deploy/terraform/**/.terraform/
+deploy/terraform/**/*.tfstate
+deploy/terraform/**/*.tfstate.*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+
+# --- Secrets & environment ---------------------------------------------------
+.env
+.env.*
+!deploy/environments/*.env          # templates are tracked; real secrets never
+deploy/environments/*.local.env
+
+# --- Coverage & reports ------------------------------------------------------
+coverage/
+lcov.info
+criterion-report/
+
+# --- OS noise ----------------------------------------------------------------
+Thumbs.db
+.DS_Store

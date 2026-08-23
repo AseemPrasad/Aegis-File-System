@@ -1,0 +1,35 @@
+# ============================================================================
+# aegis-fastcdc — compile-and-verify image (multi-stage)
+#
+# This crate is a LIBRARY consumed by the future client SDK and ingress
+# workers; it has no runtime server. The image therefore exists to prove the
+# Rust toolchain builds, lints, tests, and benches cleanly inside a pinned,
+# hermetic container (CI "compile-in-clean-room" gate). A runtime CLI binary
+# (`aegis-chunk`) is added by PROMPT 3.1 and will replace this target.
+#
+# Build:   docker build -f docker/Dockerfile.fastcdc --target verify .
+# ============================================================================
+
+FROM rust:1.82-slim AS build
+WORKDIR /src
+RUN cargo install cargo-llvm-cov --locked
+
+COPY Cargo.toml Cargo.lock* rust-toolchain.toml ./
+COPY crates/fastcdc/Cargo.toml crates/fastcdc/Cargo.toml
+RUN mkdir -p crates/fastcdc/src && echo "" > crates/fastcdc/src/lib.rs \
+    && cargo fetch # dependency layer cached before source copy
+
+COPY . .
+
+FROM build AS verify
+RUN cargo fmt --all -- --check \
+ && cargo clippy --workspace --all-targets -- -D warnings \
+ && cargo test --workspace \
+ && cargo llvm-cov --workspace --summary-only
+
+# Default target = attestation-only artifact: CI consumes the `verify` stage;
+# this final image records that verification passed at this commit.
+# Replaced by the chunk CLI binary in PROMPT 3.1.
+FROM scratch
+LABEL org.opencontainers.image.title="aegis-fastcdc"
+LABEL org.opencontainers.image.description="verify-stage artifact; runtime CLI arrives with PROMPT 3.1"

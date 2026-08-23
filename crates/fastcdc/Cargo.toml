@@ -1,0 +1,38 @@
+# ============================================================================
+# aegis-fastcdc — Content-Defined Chunking engine (data plane)
+#
+# Implements invariant I-1 surface types. Algorithm internals (Gear hashing,
+# two-phase masking, SIMD cut-points) are delivered by PROMPT 3.1; this
+# manifest freezes the dependency + benchmark harness so gates run from day 1.
+# ============================================================================
+
+[package]
+name         = "aegis-fastcdc"
+description  = "FastCDC content-defined chunking with SHA-256 addressing for Project Aegis"
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+
+[dependencies]
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+proptest  = { workspace = true }
+criterion = { workspace = true }
+rand      = { workspace = true }
+
+[[bench]]
+name    = "chunking"
+harness = false
+
+[lints.rust]
+unsafe_code = "forbid"        # SIMD intrinsics in PROMPT 3.1 will use
+                              # core::arch (safe wrappers); forbid keeps the
+                              # boundary explicit and reviewed.
+
+[lints.clippy]
+all      = "warn"
+pedantic = "warn"             # CI runs clippy -- -D warnings (zero-warning gate)

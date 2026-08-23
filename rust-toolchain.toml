@@ -1,0 +1,8 @@
+# Toolchain pin for reproducible builds.
+# Channel "stable" tracks current stable; `rust-version = "1.79"` in
+# workspace Cargo.toml is the MSRV floor enforced by CI (`cargo build` on
+# oldest-supported). Bump policy: monthly review via Renovate PR.
+[toolchain]
+channel    = "stable"
+profile    = "minimal"
+components = ["clippy", "rustfmt"]

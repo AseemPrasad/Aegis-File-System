@@ -1,0 +1,90 @@
+# ============================================================================
+# Project Aegis — Rust Workspace Root
+# PROMPT 1.2 (Development Environment & Dependency Selection)
+#
+# PINNING POLICY (see docs/DEPENDENCIES.md §Pinning):
+#   * Library deps use caret ranges within a minor (`1.39` == `^1.39`).
+#   * Determinism comes from the committed Cargo.lock; Renovate bumps weekly;
+#     cargo-deny enforces advisories/bans/licenses in CI.
+#   * Justification comments sit directly above every major dependency.
+#   * Unknown manifest keys (e.g. `doc = "..."`) are deliberately NOT used —
+#     cargo emits unused-key warnings and our gate is zero warnings.
+# ============================================================================
+
+[workspace]
+resolver = "2"
+members  = ["crates/fastcdc"]
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+rust-version = "1.79"
+license      = "Proprietary"
+repository   = "https://internal.example.com/aegis/aegis"
+
+[workspace.dependencies]
+# --- Async runtime -----------------------------------------------------------
+# Why tokio over async-std / actix-rt / smol:
+#   async-std is in maintenance decline; actix ties you to its actor framework;
+#   smol's ecosystem is thinner for high-throughput IO. Tokio's work-stealing
+#   multi-thread scheduler is the de-facto standard, has the deepest ecosystem
+#   (hyper, tonic, tower), and its budget/co-op scheduling prevents starvation
+#   under streaming loads — directly serving invariant I-1 (streaming chunks).
+# Security: continuously fuzzed, RUSTSEC-tracked, huge audit surface.
+# Performance: zero-copy io-util (AsyncRead/AsyncWriteExt), configurable
+#   worker threads = cores by default. We do NOT enable feature "full":
+#   we pin exactly what we use to keep compile times & attack surface lean.
+tokio = { version = "1.39", features = ["rt-multi-thread", "macros", "io-util", "sync", "time", "net", "signal"] }
+futures = "0.3"
+tokio-stream = "0.1"
+
+# --- Cryptography ------------------------------------------------------------
+# Why sha2 (RustCrypto) over ring / openssl:
+#   pure-Rust → no C toolchain in build, no cgo-style FFI risk; `no_std`
+#   capable; heavily property/fuzz tested; constant-time not required for
+#   hashing (public operation) but implementation is side-effect audited by
+#   the RustCrypto project. ring is excellent but pulls C and its API freezes
+#   complicate upgrades. Serves invariant I-1 (address = SHA-256).
+sha2 = "0.10"
+
+# --- Serialization -----------------------------------------------------------
+serde      = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex        = "0.4"
+
+# --- gRPC --------------------------------------------------------------------
+# Why tonic+prost over grpc-rs / tarpc / plain REST:
+#   tonic is pure Rust on hyper/tokio (no C core, unlike grpc-rs which needs
+#   cmake + protobuf-sys). prost generates lean structs with
+#   zero-copy-ish encoding; far cheaper than JSON on the wire for inter-service
+#   calls (ingress ⇄ workers control channel, PROMPT 7.1).
+tonic           = "0.12"
+prost           = "0.13"
+tonic-build     = "0.12"   # build-dependency only
+prost-build     = "0.13"   # build-dependency only
+
+# --- Identity ----------------------------------------------------------------
+uuid = { version = "1.10", features = ["v4", "v7", "serde"] }
+
+# --- Observability -----------------------------------------------------------
+tracing             = "0.1"
+tracing-subscriber  = { version = "0.3", features = ["env-filter", "json"] }
+
+# --- Errors ------------------------------------------------------------------
+thiserror = "2.0"
+anyhow    = "1.0"
+
+# --- Testing & benchmarking (dev-only) ---------------------------------------
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest  = "1.5"
+rand      = "0.8"
+
+[profile.release]
+lto           = "thin"
+codegen-units = 1
+panic         = "unwind"   # abort would skip destructors mid-stream flush
+strip         = "debuginfo"
+
+[profile.bench]
+inherits = "release"
+debug    = true        # flamegraphs need symbols (cargo-flamegraph workflow)

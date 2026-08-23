@@ -1,0 +1,50 @@
+# ============================================================================
+# Redpanda on Kubernetes (production/staging) — Helm values
+#
+# Install:
+#   helm repo add redpanda https://charts.redpanda.com
+#   helm install redpanda redpanda/redpanda \
+#     -n aegis --create-namespace \
+#     -f deploy/helm/values-redpanda.yaml \
+#     --set auth.sasl.mechanism=SCRAM-SHA-256 \
+#     --set auth.sasl.secretRef=aegis-redpanda-users   # created via Vault sync
+#
+# Kafka API is consumed by: ingress (CDC produce), workers (consume),
+# GC tombstone pipeline. Replication factor 3 satisfies broker-loss tolerance.
+# ============================================================================
+
+statefulset:
+  replicas: 3
+  resources:
+    requests:
+      cpu: "2"
+      memory: 8Gi
+    limits:
+      cpu: "4"
+      memory: 12Gi
+  storage:
+    enabled: true
+    capacity: 1Ti
+    storageClass: fast-ssd        # NVMe-backed; tiered storage offloads cold segments
+
+externalListeners: []             # edge PoPs reach Kafka through an internal LB;
+                                  # no public Kafka surface by design (B-3 posture)
+
+tls:
+  enabled: true                   # mTLS between brokers and clients (cert-manager)
+
+auth:
+  sasl:
+    enabled: true
+
+monitoring:
+  enabled: true
+  labels:
+    scrape: prometheus            # picked up by kube-prometheus-stack SD rules
+
+storage:
+  tieredConfig:
+    cloud_storage_enabled: true
+    cloud_storage_region: ${AWS_REGION}
+    cloud_storage_bucket: ${CHUNK_TIER_BUCKET}   # separate from CAS chunk bucket
+    cloud_storage_enable_remote_write: true

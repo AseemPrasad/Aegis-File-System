@@ -1,0 +1,29 @@
+# ============================================================================
+# aegis-ingest — production runtime image (multi-stage, distroless)
+#
+# Security posture:
+#   * CGO_ENABLED=0 → fully static binary, runs on scratch/distroless
+#   * gcr.io/distroless/static: nonroot — no shell, no package manager,
+#     minimal CVE surface (Trivy gate enforces CRITICAL/HIGH = 0)
+#   * Build deps never ship in the runtime layers
+# ============================================================================
+
+FROM golang:1.23-alpine AS builder
+WORKDIR /src
+
+COPY go.mod go.sum* ./
+RUN go mod download || true # tolerate missing go.sum during scaffold phase
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOFLAGS=-trimpath \
+    go build -ldflags="-s -w" -o /out/ingest ./cmd/ingest
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=builder /out/ingest /ingest
+
+EXPOSE 8080 9102
+USER nonroot:nonroot
+# Liveness/readiness probes are Kubernetes-native (PROMPT 10.1); distroless
+# intentionally ships no shell or probe binaries for a Docker HEALTHCHECK.
+
+ENTRYPOINT ["/ingest"]
