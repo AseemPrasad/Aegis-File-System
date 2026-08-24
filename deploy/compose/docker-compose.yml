@@ -31,7 +31,11 @@ services:
       - log_min_duration_statement=50     # IC-3 slow-query contract
       - -c
       - shared_preload_libraries=pg_stat_statements
-    ports: ["5432:5432"]
+    # NOTE: a second port is published because developer machines often run
+    # a native PostgreSQL on 5432; 15432 is unambiguous for host-side tools.
+    ports:
+      - "5432:5432"
+      - "15432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./init/001_bootstrap.sql:/docker-entrypoint-initdb.d/001_bootstrap.sql:ro
