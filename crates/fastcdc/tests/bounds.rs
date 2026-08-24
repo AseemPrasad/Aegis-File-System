@@ -1,4 +1,6 @@
+//! Property tests pinning the public chunking constants (scaffold contract).
 use aegis_fastcdc::{MASK_L, MASK_S, MAX_CHUNK, MIN_CHUNK};
+use proptest::prelude::*;
 
 proptest::proptest! {
     #![proptest_config(proptest::prelude::ProptestConfig::with_cases(512))]

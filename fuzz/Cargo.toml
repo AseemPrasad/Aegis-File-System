@@ -1,0 +1,21 @@
+[package]
+name = "aegis-fastcdc-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.aegis-fastcdc]
+path = "../crates/fastcdc"
+
+[[bin]]
+name = "stream_oracle"
+path = "fuzz_targets/stream_oracle.rs"
+test = false
+doc = false
+bench = false

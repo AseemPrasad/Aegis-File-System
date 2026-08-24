@@ -29,9 +29,13 @@ name    = "chunking"
 harness = false
 
 [lints.rust]
-unsafe_code = "forbid"        # SIMD intrinsics in PROMPT 3.1 will use
-                              # core::arch (safe wrappers); forbid keeps the
-                              # boundary explicit and reviewed.
+# PROMPT 3.1: forbid -> deny so the SIMD modules can take a *scoped*
+# #[allow(unsafe_code)] with mandatory SAFETY comments; every other module
+# still rejects unsafe outright. The allow sites are: simd_x86.rs, simd_arm.rs,
+# and the single dispatch fn in scan.rs.
+unsafe_code = "deny"
+
+missing_docs = "warn"
 
 [lints.clippy]
 all      = "warn"
