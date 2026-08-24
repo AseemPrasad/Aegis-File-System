@@ -1,0 +1,29 @@
+# Project Aegis — edge ingress validator deployment (PROMPT 3.2).
+#
+#   npx wrangler deploy            # staging
+#   npx wrangler deploy --env prod
+#
+# Secrets (never committed):
+#   npx wrangler secret put UPSTASH_URL
+#   npx wrangler secret put UPSTASH_TOKEN
+
+name = "aegis-ingress-validator"
+main = "worker.js"
+compatibility_date = "2026-01-15"
+
+[vars]
+# AEGIS_EDGE_POP identifies this PoP in metrics/logs; tokens are scoped to
+# the endpoint id minted by the origin, so a URL leaked between PoPs fails.
+AEGIS_EDGE_POP = "pop-fra1"
+
+[[kv_namespaces]]
+binding = "TENANT_KEYS"
+id = "<staging-kv-id>"
+
+[env.prod]
+name = "aegis-ingress-validator-prod"
+vars = { AEGIS_EDGE_POP = "pop-prod" }
+
+[[env.prod.kv_namespaces]]
+binding = "TENANT_KEYS"
+id = "<prod-kv-id>"
