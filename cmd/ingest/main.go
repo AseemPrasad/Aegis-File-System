@@ -17,6 +17,8 @@
 //	AEGIS_S3_ACCESS_KEY      — access key (MinIO or static creds)
 //	AEGIS_S3_SECRET_KEY      — secret key
 //	AEGIS_S3_USE_SSL         — use HTTPS for MinIO (default "false")
+//	AEGIS_GC_INTERVAL        — CAS GC sweep interval (default "5m")
+//	AEGIS_GC_BATCH           — CAS GC batch size (default "1000")
 package main
 
 import (
@@ -36,6 +38,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/aegis-dev/aegis/internal/auth"
+	"github.com/aegis-dev/aegis/internal/cas"
 	"github.com/aegis-dev/aegis/internal/database"
 	"github.com/aegis-dev/aegis/internal/ingress"
 	"github.com/aegis-dev/aegis/internal/objectstorage"
@@ -153,6 +156,47 @@ func main() {
 	reaperInterval, _ := time.ParseDuration(envOr("AEGIS_SESSION_REAPER", "60s"))
 	srv.StartSessionReaper(reaperInterval)
 	defer srv.StopSessionReaper()
+
+	// ------------------------------------------------------------------
+	// CAS metrics + GC worker
+	// ------------------------------------------------------------------
+	casMetrics := cas.NewCASMetrics(reg)
+	casRegistry := cas.NewPgRegistryFromClient(dbClient, logger)
+
+	// Background: refresh CAS metrics every 30s.
+	go func() {
+		t := time.NewTicker(30 * time.Second)
+		defer t.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+				stats, err := casRegistry.GetStorageStats(ctx)
+				if err != nil {
+					logger.Warn("cas stats refresh failed", "err", err)
+					continue
+				}
+				casMetrics.RefreshFromStats(stats, 0)
+			}
+		}
+	}()
+
+	var blobDeleter func(ctx context.Context, blockHash string) error
+	if blobStore != nil {
+		blobDeleter = blobStore.(interface {
+			DeleteBlock(ctx context.Context, blockHash string) error
+		}).DeleteBlock
+	}
+
+	gcInterval, _ := time.ParseDuration(envOr("AEGIS_GC_INTERVAL", "5m"))
+	gcBatch := 1000
+	gcWorker := cas.NewGCWorker(casRegistry, blobDeleter, casMetrics, logger, cas.GCConfig{
+		Interval:  gcInterval,
+		BatchSize: gcBatch,
+	})
+	gcWorker.Start(ctx)
+	defer gcWorker.Stop()
 
 	// ------------------------------------------------------------------
 	// HTTP server

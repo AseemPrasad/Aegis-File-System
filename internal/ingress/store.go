@@ -345,6 +345,9 @@ func (s *PgStore) MarkBlockVerified(ctx context.Context, blockHash []byte) error
 	return err
 }
 
+// DB returns the underlying DatabaseClient for use by the CAS registry.
+func (s *PgStore) DB() *database.DatabaseClient { return s.db }
+
 // ---------------------------------------------------------------------------
 // FakeStore — in-memory test double
 // ---------------------------------------------------------------------------
