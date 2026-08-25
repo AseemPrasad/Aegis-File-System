@@ -110,6 +110,9 @@ func (r *InitiateRequest) Validate() error {
 		if len(c.BlockHash) != 64 {
 			return fmt.Errorf("%w: chunk[%d].block_hash must be 64 hex chars", ErrBadRequest, i)
 		}
+		if _, err := hex.DecodeString(c.BlockHash); err != nil {
+			return fmt.Errorf("%w: chunk[%d].block_hash must be valid hex", ErrBadRequest, i)
+		}
 		if c.SizeBytes <= 0 {
 			return fmt.Errorf("%w: chunk[%d].size_bytes must be positive", ErrBadRequest, i)
 		}
@@ -157,9 +160,15 @@ func (r *CommitRequest) Validate() error {
 	if len(r.ContentSHA256) != 64 {
 		return fmt.Errorf("%w: content_sha256 must be 64 hex chars", ErrBadRequest)
 	}
+	if _, err := hex.DecodeString(r.ContentSHA256); err != nil {
+		return fmt.Errorf("%w: content_sha256 must be valid hex", ErrBadRequest)
+	}
 	for i, b := range r.Blocks {
 		if len(b.BlockHash) != 64 {
 			return fmt.Errorf("%w: block[%d].block_hash must be 64 hex chars", ErrBadRequest, i)
+		}
+		if _, err := hex.DecodeString(b.BlockHash); err != nil {
+			return fmt.Errorf("%w: block[%d].block_hash must be valid hex", ErrBadRequest, i)
 		}
 		if b.SizeBytes <= 0 {
 			return fmt.Errorf("%w: block[%d].size_bytes must be positive", ErrBadRequest, i)
