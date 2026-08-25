@@ -19,6 +19,11 @@ type CASMetrics struct {
 	GCSweepsTotal     prometheus.Counter
 	GCBlocksDeleted   prometheus.Counter
 	GCLastSweepDuration prometheus.Histogram
+	GCSessionsExpired prometheus.Counter
+	GCBlocksTombstoned prometheus.Counter
+	GCDeletionFailed  prometheus.Counter
+	GCRateLimitHit    prometheus.Counter
+	GCDoubleCheckSaved prometheus.Counter
 }
 
 // NewCASMetrics registers all collectors with the given registerer.
@@ -88,6 +93,26 @@ func NewCASMetrics(reg prometheus.Registerer) *CASMetrics {
 			Help:    "Duration of last GC sweep",
 			Buckets: []float64{0.01, 0.05, 0.1, 0.5, 1, 5, 10, 30, 60},
 		}),
+		GCSessionsExpired: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: "aegis", Subsystem: "cas",
+			Name: "gc_sessions_expired_total", Help: "Total upload sessions expired by GC",
+		}),
+		GCBlocksTombstoned: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: "aegis", Subsystem: "cas",
+			Name: "gc_blocks_tombstoned_total", Help: "Total tombstone events emitted by GC",
+		}),
+		GCDeletionFailed: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: "aegis", Subsystem: "cas",
+			Name: "gc_deletion_failed_total", Help: "Total failed blob deletions by GC",
+		}),
+		GCRateLimitHit: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: "aegis", Subsystem: "cas",
+			Name: "gc_rate_limit_hit_total", Help: "Total times GC hit rate limit",
+		}),
+		GCDoubleCheckSaved: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: "aegis", Subsystem: "cas",
+			Name: "gc_double_check_saved_total", Help: "Total blocks saved by double-check",
+		}),
 	}
 
 	reg.MustRegister(
@@ -99,6 +124,8 @@ func NewCASMetrics(reg prometheus.Registerer) *CASMetrics {
 		m.DeduplicationRatio,
 		m.RefCountDistribution,
 		m.GCSweepsTotal, m.GCBlocksDeleted, m.GCLastSweepDuration,
+		m.GCSessionsExpired, m.GCBlocksTombstoned,
+		m.GCDeletionFailed, m.GCRateLimitHit, m.GCDoubleCheckSaved,
 	)
 	return m
 }
@@ -131,3 +158,21 @@ func (m *CASMetrics) ObserveRefCounts(refCounts []int64) {
 		m.RefCountDistribution.Observe(float64(rc))
 	}
 }
+
+// IncSessionsExpired increments the sessions expired counter.
+func (m *CASMetrics) IncSessionsExpired() { m.GCSessionsExpired.Inc() }
+
+// IncBlocksTombstoned increments the blocks tombstoned counter.
+func (m *CASMetrics) IncBlocksTombstoned() { m.GCBlocksTombstoned.Inc() }
+
+// IncBlocksDeleted increments the blocks deleted counter.
+func (m *CASMetrics) IncBlocksDeleted() { m.GCBlocksDeleted.Inc() }
+
+// IncDeletionFailed increments the deletion failed counter.
+func (m *CASMetrics) IncDeletionFailed() { m.GCDeletionFailed.Inc() }
+
+// IncRateLimitHit increments the rate limit hit counter.
+func (m *CASMetrics) IncRateLimitHit() { m.GCRateLimitHit.Inc() }
+
+// IncDoubleCheckSaved increments the double-check saved counter.
+func (m *CASMetrics) IncDoubleCheckSaved() { m.GCDoubleCheckSaved.Inc() }

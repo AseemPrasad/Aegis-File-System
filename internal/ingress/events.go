@@ -20,9 +20,20 @@ type FileCommittedEvent struct {
 	BlockHashes  []string `json:"block_hashes"`
 }
 
+// BlockTombstoneEvent is the CDC payload emitted when a CAS block is
+// scheduled for deletion (ref_count = 0, past safety window).
+type BlockTombstoneEvent struct {
+	BlockHash string `json:"block_hash"`
+	TenantID  string `json:"tenant_id"`
+	SizeBytes int32  `json:"size_bytes"`
+	Timestamp string `json:"timestamp"` // RFC 3339
+	Reason    string `json:"reason"`    // "orphan_gc", "session_expired"
+}
+
 // EventBus publishes CDC events after successful commits.
 type EventBus interface {
 	PublishFileCommitted(ctx context.Context, event FileCommittedEvent) error
+	PublishBlockTombstone(ctx context.Context, topic string, event BlockTombstoneEvent) error
 }
 
 // NoopBus discards events. Used when KAFKA_BROKERS is unset (dev profile).
@@ -36,6 +47,16 @@ func (b *NoopBus) PublishFileCommitted(_ context.Context, event FileCommittedEve
 			"tenant", event.TenantID,
 			"node", event.NodeID,
 			"version", event.VersionNumber)
+	}
+	return nil
+}
+
+func (b *NoopBus) PublishBlockTombstone(_ context.Context, topic string, event BlockTombstoneEvent) error {
+	if b.Logger != nil {
+		b.Logger.Info("tombstone event (noop)",
+			"topic", topic,
+			"hash", event.BlockHash,
+			"reason", event.Reason)
 	}
 	return nil
 }

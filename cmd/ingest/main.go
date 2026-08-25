@@ -19,6 +19,9 @@
 //	AEGIS_S3_USE_SSL         — use HTTPS for MinIO (default "false")
 //	AEGIS_GC_INTERVAL        — CAS GC sweep interval (default "5m")
 //	AEGIS_GC_BATCH           — CAS GC batch size (default "1000")
+//	AEGIS_GC_SESSION_INTERVAL — session cleanup interval (default "1h")
+//	AEGIS_GC_MAX_PER_HOUR    — max blocks deleted per hour (default "5000")
+//	AEGIS_GC_DRY_RUN         — dry-run mode for GC (default "false")
 package main
 
 import (
@@ -28,6 +31,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -40,6 +44,7 @@ import (
 	"github.com/aegis-dev/aegis/internal/auth"
 	"github.com/aegis-dev/aegis/internal/cas"
 	"github.com/aegis-dev/aegis/internal/database"
+	"github.com/aegis-dev/aegis/internal/gc"
 	"github.com/aegis-dev/aegis/internal/ingress"
 	"github.com/aegis-dev/aegis/internal/objectstorage"
 )
@@ -158,7 +163,7 @@ func main() {
 	defer srv.StopSessionReaper()
 
 	// ------------------------------------------------------------------
-	// CAS metrics + GC worker
+	// CAS metrics + generational GC pipeline
 	// ------------------------------------------------------------------
 	casMetrics := cas.NewCASMetrics(reg)
 	casRegistry := cas.NewPgRegistryFromClient(dbClient, logger)
@@ -182,21 +187,45 @@ func main() {
 		}
 	}()
 
-	var blobDeleter func(ctx context.Context, blockHash string) error
+	// Generational mark-and-sweep GC pipeline.
+	gcSessionInterval, _ := time.ParseDuration(envOr("AEGIS_GC_SESSION_INTERVAL", "1h"))
+	gcSweepInterval, _ := time.ParseDuration(envOr("AEGIS_GC_INTERVAL", "5m"))
+	gcBatch, _ := strconv.Atoi(envOr("AEGIS_GC_BATCH", "1000"))
+	gcMaxPerHour, _ := strconv.Atoi(envOr("AEGIS_GC_MAX_PER_HOUR", "5000"))
+	gcDryRun := os.Getenv("AEGIS_GC_DRY_RUN") == "true"
+
+	gcStore := &gcStoreAdapter{db: dbClient}
+	gcPublisher := &gcPublisherAdapter{bus: events}
+
+	// Adapt blobStore (ingress.BlobStore) to gc.BlobDeleter.
+	var gcBlob gc.BlobDeleter
 	if blobStore != nil {
-		blobDeleter = blobStore.(interface {
+		if del, ok := blobStore.(interface {
 			DeleteBlock(ctx context.Context, blockHash string) error
-		}).DeleteBlock
+		}); ok {
+			gcBlob = &blobDeleterAdapter{deleteFn: del.DeleteBlock}
+		}
 	}
 
-	gcInterval, _ := time.ParseDuration(envOr("AEGIS_GC_INTERVAL", "5m"))
-	gcBatch := 1000
-	gcWorker := cas.NewGCWorker(casRegistry, blobDeleter, casMetrics, logger, cas.GCConfig{
-		Interval:  gcInterval,
-		BatchSize: gcBatch,
+	gcMetrics := &gc.Metrics{
+		SessionsExpired: func() { casMetrics.IncSessionsExpired() },
+		BlocksTombstoned: func() { casMetrics.IncBlocksTombstoned() },
+		BlocksDeleted: func() { casMetrics.IncBlocksDeleted() },
+		DeletionFailed: func() { casMetrics.IncDeletionFailed() },
+		RateLimitHit: func() { casMetrics.IncRateLimitHit() },
+		DoubleCheckSaved: func() { casMetrics.IncDoubleCheckSaved() },
+	}
+
+	gcPipeline := gc.New(gcStore, gcPublisher, gcBlob, gcMetrics, logger, gc.Config{
+		SessionCleanupInterval: gcSessionInterval,
+		BlockSweepInterval:     gcSweepInterval,
+		SafetyWindow:           7 * 24 * time.Hour,
+		BatchSize:              gcBatch,
+		MaxBlocksPerHour:       gcMaxPerHour,
+		DryRun:                 gcDryRun,
 	})
-	gcWorker.Start(ctx)
-	defer gcWorker.Stop()
+	gcPipeline.Start(ctx)
+	defer gcPipeline.Stop()
 
 	// ------------------------------------------------------------------
 	// HTTP server
