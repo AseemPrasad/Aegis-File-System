@@ -235,6 +235,27 @@ CREATE TABLE audit_logs_default PARTITION OF audit_logs DEFAULT;
 COMMENT ON TABLE audit_logs_default IS 'Catch-all partition; alerts fire if rows land here (means maintenance lagged).';
 
 -- ============================================================================
+-- DERIVATION RESULTS — stores outputs from CDC-triggered workers
+-- (ClamAV scan, OCR extraction, FFmpeg transcoding, vector embedding).
+-- ============================================================================
+
+CREATE TABLE derivation_results (
+    result_id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    version_id  UUID NOT NULL REFERENCES file_versions(version_id) ON DELETE CASCADE,
+    worker_name VARCHAR(64) NOT NULL,
+    status      VARCHAR(32) NOT NULL CHECK (status IN ('SUCCESS', 'FAILED', 'SKIPPED')),
+    result_data JSONB NOT NULL DEFAULT '{}',
+    error       TEXT,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_derivation_version ON derivation_results(version_id);
+CREATE INDEX idx_derivation_worker ON derivation_results(worker_name);
+CREATE INDEX idx_derivation_created ON derivation_results(created_at);
+
+COMMENT ON TABLE derivation_results IS 'CDC derivation worker outputs. One row per worker per version commit.';
+
+-- ============================================================================
 -- GRANTS — least privilege per IC-3 role split.
 -- aegis_app      : DML on app tables + procedure EXECUTE
 -- aegis_readonly : SELECT only

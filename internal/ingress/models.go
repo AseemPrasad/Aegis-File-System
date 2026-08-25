@@ -136,6 +136,7 @@ type UploadURL struct {
 type CommitRequest struct {
 	SessionID     string      `json:"session_id"`
 	ContentSHA256 string      `json:"content_sha256"` // hex, 64 chars
+	MimeType      string      `json:"mime_type,omitempty"` // optional; defaults to "application/octet-stream"
 	Blocks        []BlockMeta `json:"blocks"`
 }
 

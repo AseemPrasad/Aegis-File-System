@@ -44,9 +44,11 @@ import (
 	"github.com/aegis-dev/aegis/internal/auth"
 	"github.com/aegis-dev/aegis/internal/cas"
 	"github.com/aegis-dev/aegis/internal/database"
+	"github.com/aegis-dev/aegis/internal/derivation"
 	"github.com/aegis-dev/aegis/internal/gc"
 	"github.com/aegis-dev/aegis/internal/ingress"
 	"github.com/aegis-dev/aegis/internal/objectstorage"
+	"github.com/aegis-dev/aegis/internal/workers"
 )
 
 func main() {
@@ -149,6 +151,37 @@ func main() {
 	}
 
 	// ------------------------------------------------------------------
+	// Derivation pipeline (CDC-driven workers)
+	// ------------------------------------------------------------------
+	var derivationBridge *derivationBridge
+
+	if os.Getenv("AEGIS_DERIVATION_ENABLED") == "true" {
+		blockReader := &dbBlockReader{db: dbClient}
+		var derivationWorkers []derivation.Worker
+		derivationWorkers = append(derivationWorkers,
+			workers.NewClamAVWorker(&noopScanner{}, blockReader),
+			workers.NewOCRWorker(&noopTextExtractor{}, blockReader),
+			workers.NewFFmpegWorker(&noopVideoProcessor{}, blockReader),
+			workers.NewVectorEmbedWorker(&noopEmbedder{}, blockReader),
+		)
+
+		resultStore := derivation.NewFakeResultStore()
+		dlq := derivation.NewMemoryDLQ(logger)
+		pool := derivation.NewWorkerPool(derivationWorkers, derivation.PoolConfig{
+			ResultStore: resultStore,
+			DLQ:         dlq,
+			Logger:      logger,
+		})
+
+		derivationBridge = newDerivationBridge(pool, logger)
+		derivationBridge.Start(ctx)
+		events = derivationBridge
+		logger.Info("derivation pipeline enabled",
+			"workers", len(derivationWorkers),
+			"buffer", 256)
+	}
+
+	// ------------------------------------------------------------------
 	// Ingress server
 	// ------------------------------------------------------------------
 	cfg := ingress.Config{
@@ -226,6 +259,11 @@ func main() {
 	})
 	gcPipeline.Start(ctx)
 	defer gcPipeline.Stop()
+
+	// Stop derivation bridge on shutdown.
+	if derivationBridge != nil {
+		defer derivationBridge.Stop()
+	}
 
 	// ------------------------------------------------------------------
 	// HTTP server

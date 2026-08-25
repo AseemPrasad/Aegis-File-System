@@ -93,16 +93,32 @@ func (s *IngressServer) handleCommit(w http.ResponseWriter, r *http.Request) err
 	// Post-commit: publish CDC event.
 	if s.events != nil {
 		blockHashes := make([]string, len(req.Blocks))
+		chunks := make([]ChunkDetail, len(req.Blocks))
 		for i, b := range req.Blocks {
 			blockHashes[i] = b.BlockHash
+			chunks[i] = ChunkDetail{
+				Index:       b.ChunkIndex,
+				BlockHash:   b.BlockHash,
+				SizeBytes:   b.SizeBytes,
+				OffsetBytes: b.Offset,
+			}
+		}
+		mimeType := req.MimeType
+		if mimeType == "" {
+			mimeType = "application/octet-stream"
 		}
 		_ = s.events.PublishFileCommitted(ctx, FileCommittedEvent{
+			EventID:       uuid.New().String(),
+			EventType:     "VERSION_COMMITTED",
 			TenantID:      tenantID.String(),
 			NodeID:        session.NodeID,
 			VersionID:     versionID,
 			VersionNumber: versionNumber,
 			TotalSize:     session.TotalSize,
+			MimeType:      mimeType,
 			ContentSHA256: req.ContentSHA256,
+			CreatedAt:     time.Now().UTC().Format(time.RFC3339),
+			Chunks:        chunks,
 			BlockHashes:   blockHashes,
 		})
 	}
