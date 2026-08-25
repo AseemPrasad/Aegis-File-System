@@ -2,14 +2,21 @@
 //
 // Environment variables:
 //
-//	AEGIS_HTTP_PORT        — listen address (default "8080")
-//	AEGIS_API_TOKEN        — bearer token for API auth (empty = no auth)
-//	AEGIS_ENDPOINT_ID      — edge PoP ID for pre-signed URLs (default "default")
-//	AEGIS_DATABASE_DSN     — PostgreSQL primary DSN (required)
-//	AEGIS_REDIS_ADDR       — Redis addr for nonces (default "localhost:6379")
-//	AEGIS_REDIS_PASSWORD   — Redis password
-//	AEGIS_SESSION_REAPER   — session reaper interval (default "60s")
-//	AEGIS_LOG_LEVEL        — slog level: debug, info, warn, error (default "info")
+//	AEGIS_HTTP_PORT          — listen address (default "8080")
+//	AEGIS_API_TOKEN          — bearer token for API auth (empty = no auth)
+//	AEGIS_ENDPOINT_ID        — edge PoP ID for pre-signed URLs (default "default")
+//	AEGIS_DATABASE_DSN       — PostgreSQL primary DSN (required)
+//	AEGIS_REDIS_ADDR         — Redis addr for nonces (default "localhost:6379")
+//	AEGIS_REDIS_PASSWORD     — Redis password
+//	AEGIS_SESSION_REAPER     — session reaper interval (default "60s")
+//	AEGIS_LOG_LEVEL          — slog level: debug, info, warn, error (default "info")
+//	AEGIS_STORAGE_BACKEND    — "s3" or "minio"; empty = edge PoP mode (default "")
+//	AEGIS_S3_ENDPOINT        — S3/MinIO endpoint (required when STORAGE_BACKEND set)
+//	AEGIS_S3_REGION          — S3 region (default "us-east-1")
+//	AEGIS_S3_BUCKET          — bucket name (required when STORAGE_BACKEND set)
+//	AEGIS_S3_ACCESS_KEY      — access key (MinIO or static creds)
+//	AEGIS_S3_SECRET_KEY      — secret key
+//	AEGIS_S3_USE_SSL         — use HTTPS for MinIO (default "false")
 package main
 
 import (
@@ -19,6 +26,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -30,6 +38,7 @@ import (
 	"github.com/aegis-dev/aegis/internal/auth"
 	"github.com/aegis-dev/aegis/internal/database"
 	"github.com/aegis-dev/aegis/internal/ingress"
+	"github.com/aegis-dev/aegis/internal/objectstorage"
 )
 
 func main() {
@@ -97,13 +106,48 @@ func main() {
 	metrics := ingress.NewIngestMetrics(reg)
 
 	// ------------------------------------------------------------------
+	// Object storage (optional direct-to-blob backend)
+	// ------------------------------------------------------------------
+	var blobStore ingress.BlobStore
+	storageBackend := os.Getenv("AEGIS_STORAGE_BACKEND")
+	if strings.EqualFold(storageBackend, "s3") {
+		awsCfg, err := objectstorage.NewS3Client(ctx, objectstorage.S3Config{
+			Endpoint:  os.Getenv("AEGIS_S3_ENDPOINT"),
+			Region:    envOr("AEGIS_S3_REGION", "us-east-1"),
+			BucketName: os.Getenv("AEGIS_S3_BUCKET"),
+		}, logger)
+		if err != nil {
+			logger.Error("s3 client init failed", "err", err)
+			os.Exit(1)
+		}
+		blobStore = awsCfg
+		logger.Info("storage backend", "type", "s3", "endpoint", os.Getenv("AEGIS_S3_ENDPOINT"))
+	} else if strings.EqualFold(storageBackend, "minio") {
+		minioCfg, err := objectstorage.NewMinIOClient(objectstorage.MinIOConfig{
+			Endpoint:  os.Getenv("AEGIS_S3_ENDPOINT"),
+			AccessKey: os.Getenv("AEGIS_S3_ACCESS_KEY"),
+			SecretKey: os.Getenv("AEGIS_S3_SECRET_KEY"),
+			Bucket:    os.Getenv("AEGIS_S3_BUCKET"),
+			UseSSL:    os.Getenv("AEGIS_S3_USE_SSL") == "true",
+		}, logger)
+		if err != nil {
+			logger.Error("minio client init failed", "err", err)
+			os.Exit(1)
+		}
+		blobStore = minioCfg
+		logger.Info("storage backend", "type", "minio", "endpoint", os.Getenv("AEGIS_S3_ENDPOINT"))
+	} else {
+		logger.Info("storage backend", "type", "edge-pop")
+	}
+
+	// ------------------------------------------------------------------
 	// Ingress server
 	// ------------------------------------------------------------------
 	cfg := ingress.Config{
 		APIToken:   envOr("AEGIS_API_TOKEN", ""),
 		EndpointID: envOr("AEGIS_ENDPOINT_ID", "default"),
 	}
-	srv := ingress.NewIngressServer(store, signerAdapter, events, metrics, cfg, logger)
+	srv := ingress.NewIngressServer(store, signerAdapter, blobStore, events, metrics, cfg, logger)
 
 	// Start session reaper.
 	reaperInterval, _ := time.ParseDuration(envOr("AEGIS_SESSION_REAPER", "60s"))

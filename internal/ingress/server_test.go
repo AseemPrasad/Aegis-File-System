@@ -40,7 +40,7 @@ func newTestServer(t *testing.T, store Store, apiToken string) (*IngressServer, 
 	metrics := NewIngestMetrics(nil)
 	events := &NoopBus{}
 	cfg := Config{APIToken: apiToken, EndpointID: "test-edge"}
-	srv := NewIngressServer(store, &stubTokenSigner{}, events, metrics, cfg, nil)
+	srv := NewIngressServer(store, &stubTokenSigner{}, nil, events, metrics, cfg, nil)
 	mux := http.NewServeMux()
 	srv.SetupRoutes(mux)
 	return srv, mux

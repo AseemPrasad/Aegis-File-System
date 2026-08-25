@@ -153,12 +153,14 @@ CREATE TABLE cas_blocks (
     size_bytes    INTEGER     NOT NULL CHECK (size_bytes > 0),
     storage_tier  VARCHAR(32) NOT NULL DEFAULT 'HOT' CHECK (storage_tier IN ('HOT', 'WARM', 'COLD')),
     ref_count     BIGINT      NOT NULL DEFAULT 0 CHECK (ref_count >= 0), -- trigger-maintained; see protocol note
+    verified      BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE  cas_blocks IS 'One row per unique chunk; ref_count maintained exclusively by manifest triggers.';
 COMMENT ON COLUMN cas_blocks.ref_count IS '≡ COUNT(file_manifest_blocks WHERE block_hash=…); GC deletes only after 7-day zero window.';
+COMMENT ON COLUMN cas_blocks.verified IS 'TRUE after blob-store ETag confirms bit-perfect upload; unverified blocks not served.';
 
 -- ---------------------------------------------------------------------------
 -- file_manifest_blocks — ordered Merkle manifest (chunk assembly truth)

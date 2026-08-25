@@ -98,7 +98,14 @@ func (s *IngressServer) handleInitiate(w http.ResponseWriter, r *http.Request) e
 			continue
 		}
 		s.metrics.UploadsTotal.Inc()
-		url, uerr := s.tokens.GeneratePreSignedURL(ctx, tenantID.String(), c.BlockHash, s.cfg.EndpointID)
+
+		var url string
+		var uerr error
+		if s.blob != nil {
+			url, uerr = s.blob.GenerateUploadURL(ctx, tenantID.String(), c.BlockHash, c.SizeBytes)
+		} else {
+			url, uerr = s.tokens.GeneratePreSignedURL(ctx, tenantID.String(), c.BlockHash, s.cfg.EndpointID)
+		}
 		if uerr != nil {
 			s.metrics.InitiateTotal.WithLabelValues("500").Inc()
 			return fmt.Errorf("mint pre-signed URL: %w", uerr)

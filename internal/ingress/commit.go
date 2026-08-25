@@ -77,6 +77,19 @@ func (s *IngressServer) handleCommit(w http.ResponseWriter, r *http.Request) err
 	// Post-commit: bump cache generation (best-effort, never fails the commit).
 	_ = s.store.BumpCacheGeneration(ctx, tenantID)
 
+	// Post-commit: verify blocks via ETag (best-effort, marks verified in DB).
+	if s.blob != nil {
+		for _, b := range req.Blocks {
+			if verr := s.blob.VerifyBlock(ctx, b.BlockHash, b.ETag); verr != nil {
+				s.logger.Warn("block verification failed", "hash", b.BlockHash, "err", verr)
+				continue
+			}
+			if derr := s.store.MarkBlockVerified(ctx, MustDecodeHash(b.BlockHash)); derr != nil {
+				s.logger.Warn("mark block verified failed", "hash", b.BlockHash, "err", derr)
+			}
+		}
+	}
+
 	// Post-commit: publish CDC event.
 	if s.events != nil {
 		blockHashes := make([]string, len(req.Blocks))

@@ -33,6 +33,7 @@ type Store interface {
 	CommitFile(ctx context.Context, tenantID, sessionID uuid.UUID, contentSHA256 []byte, blocks []BlockMeta) (string, int, error)
 	BumpCacheGeneration(ctx context.Context, tenantID uuid.UUID) error
 	ExpireStaleSessions(ctx context.Context) (int64, error)
+	MarkBlockVerified(ctx context.Context, blockHash []byte) error
 }
 
 // ---------------------------------------------------------------------------
@@ -338,6 +339,12 @@ func (s *PgStore) ExpireStaleSessions(ctx context.Context) (int64, error) {
 	return int64(tag.RowsAffected()), nil
 }
 
+func (s *PgStore) MarkBlockVerified(ctx context.Context, blockHash []byte) error {
+	_, err := s.db.ExecWithMetrics(ctx, database.OpWrite, "mark_block_verified", "",
+		`UPDATE cas_blocks SET verified = TRUE, updated_at = NOW() WHERE block_hash = $1`, blockHash)
+	return err
+}
+
 // ---------------------------------------------------------------------------
 // FakeStore — in-memory test double
 // ---------------------------------------------------------------------------
@@ -490,3 +497,5 @@ func (f *FakeStore) CommitFile(_ context.Context, tenantID, sessionID uuid.UUID,
 
 func (f *FakeStore) BumpCacheGeneration(_ context.Context, _ uuid.UUID) error { return nil }
 func (f *FakeStore) ExpireStaleSessions(_ context.Context) (int64, error)    { return 0, nil }
+
+func (f *FakeStore) MarkBlockVerified(_ context.Context, _ []byte) error { return nil }

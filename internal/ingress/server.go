@@ -38,14 +38,22 @@ func (c *Config) applyDefaults() {
 
 // IngressServer is the stateless ingestion engine.
 type IngressServer struct {
-	store   Store
-	tokens  TokenSigner
-	events  EventBus
-	metrics *IngestMetrics
-	cfg     Config
-	logger  *slog.Logger
+	store     Store
+	tokens    TokenSigner
+	blob      BlobStore // optional; when set, GenerateUploadURL uses direct-to-blob
+	events    EventBus
+	metrics   *IngestMetrics
+	cfg       Config
+	logger    *slog.Logger
 
 	sessionReaperStop context.CancelFunc
+}
+
+// BlobStore abstracts direct-to-blob pre-signed URL generation.
+// When nil, IngressServer falls back to TokenSigner (edge PoP).
+type BlobStore interface {
+	GenerateUploadURL(ctx context.Context, tenantID string, blockHash string, sizeBytes int64) (string, error)
+	VerifyBlock(ctx context.Context, blockHash string, expectedETag string) error
 }
 
 // TokenSigner abstracts the auth.TokenGenerator for pre-signed URL minting.
@@ -57,6 +65,7 @@ type TokenSigner interface {
 func NewIngressServer(
 	store Store,
 	tokens TokenSigner,
+	blob BlobStore,
 	events EventBus,
 	metrics *IngestMetrics,
 	cfg Config,
@@ -69,6 +78,7 @@ func NewIngressServer(
 	return &IngressServer{
 		store:   store,
 		tokens:  tokens,
+		blob:    blob,
 		events:  events,
 		metrics: metrics,
 		cfg:     cfg,

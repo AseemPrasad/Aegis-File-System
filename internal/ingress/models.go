@@ -141,10 +141,11 @@ type CommitRequest struct {
 
 // BlockMeta describes one block in the committed manifest.
 type BlockMeta struct {
-	BlockHash  string `json:"block_hash"` // hex SHA-256
+	BlockHash string `json:"block_hash"` // hex SHA-256
 	ChunkIndex int    `json:"chunk_index"`
 	Offset     int64  `json:"offset_bytes"`
 	SizeBytes  int64  `json:"size_bytes"`
+	ETag       string `json:"etag,omitempty"` // MD5 ETag from object store (for verification)
 }
 
 // Validate checks structural invariants.
