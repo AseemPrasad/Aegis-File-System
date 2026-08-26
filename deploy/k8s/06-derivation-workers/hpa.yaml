@@ -1,0 +1,49 @@
+# ============================================================================
+# Project Aegis — HorizontalPodAutoscaler (derivation-workers)
+#
+# Scales based on CPU utilization (target 60%). In a production setup,
+# you'd also add a custom metric for queue depth (pending derivation jobs).
+# ============================================================================
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aegis-derivation-workers
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: aegis-derivation-workers
+    app.kubernetes.io/component: workers
+    app.kubernetes.io/part-of: aegis
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aegis-derivation-workers
+  minReplicas: 2
+  maxReplicas: 10
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 120
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75

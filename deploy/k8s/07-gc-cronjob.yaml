@@ -1,0 +1,95 @@
+# ============================================================================
+# Project Aegis — GC CronJob
+#
+# Runs the CAS garbage collection sweep on a schedule (default: every hour).
+# Uses the same ingest binary with a GC-only flag. The job is non-overlapping:
+# if a sweep is still running, the next invocation is skipped.
+#
+# In production, consider:
+#   - Using a CronJob with AEGIS_GC_ENABLED=true
+#   - Or running GC as a sidecar within the ingestion pods (already wired
+#     in cmd/ingest/main.go when AEGIS_GC_ENABLED=true)
+#
+# This CronJob is an ALTERNATIVE for environments where GC runs outside
+# the main process. If AEGIS_GC_ENABLED=true is set on the ingestion pods,
+# this CronJob is NOT needed.
+# ============================================================================
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: aegis-gc-sweep
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: aegis-gc
+    app.kubernetes.io/component: gc
+    app.kubernetes.io/part-of: aegis
+spec:
+  schedule: "0 * * * *"   # every hour
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aegis-gc
+        app.kubernetes.io/part-of: aegis
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: aegis-gc
+            app.kubernetes.io/part-of: aegis
+        spec:
+          serviceAccountName: aegis-gc
+          terminationGracePeriodSeconds: 60
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+          containers:
+            - name: gc
+              image: ghcr.io/aegis-dev/aegis-ingest:latest
+              imagePullPolicy: Always
+              args:
+                - "-gc-only"
+              envFrom:
+                - configMapRef:
+                    name: aegis-config
+                - secretRef:
+                    name: aegis-secrets
+              env:
+                - name: AEGIS_PRIMARY_DSN
+                  valueFrom:
+                    secretKeyRef:
+                      name: aegis-secrets
+                      key: database-url
+                - name: AEGIS_S3_ENDPOINT
+                  valueFrom:
+                    secretKeyRef:
+                      name: aegis-secrets
+                      key: s3-endpoint
+                - name: AEGIS_S3_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aegis-secrets
+                      key: s3-access-key
+                - name: AEGIS_S3_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aegis-secrets
+                      key: s3-secret-key
+                - name: AEGIS_S3_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: aegis-secrets
+                      key: s3-bucket
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 256Mi
+                limits:
+                  cpu: "1"
+                  memory: 512Mi

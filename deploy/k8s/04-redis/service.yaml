@@ -1,0 +1,60 @@
+# ============================================================================
+# Project Aegis — Redis Services
+#
+# redis:       Headless service for StatefulSet DNS
+# redis-primary: ClusterIP service routing to ordinal 0 (writes)
+# redis-replica: ClusterIP service routing to replicas 1-2 (reads)
+# ============================================================================
+
+# Headless service for StatefulSet pod DNS
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: aegis
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: redis
+  ports:
+    - port: 6379
+      targetPort: redis
+      name: redis
+---
+# Primary (ordinal 0)
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-primary
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: aegis
+spec:
+  selector:
+    app.kubernetes.io/name: redis
+    statefulset.kubernetes.io/pod-name: redis-0
+  ports:
+    - port: 6379
+      targetPort: redis
+      name: redis
+---
+# Read replicas (ordinal 1, 2)
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-replica
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: aegis
+spec:
+  selector:
+    app.kubernetes.io/name: redis
+  ports:
+    - port: 6379
+      targetPort: redis
+      name: redis

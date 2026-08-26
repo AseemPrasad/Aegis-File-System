@@ -1,0 +1,66 @@
+# ============================================================================
+# Project Aegis — Kustomization (kustomize build deploy/k8s/)
+#
+# Usage:
+#   kustomize build deploy/k8s/ | kubectl apply -f -
+#   kustomize build deploy/k8s/ | kubectl diff -f -   # preview changes
+#
+# To deploy only observability stack:
+#   kustomize build deploy/k8s/08-observability/ | kubectl apply -f -
+# ============================================================================
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Core infrastructure
+  - 00-namespace.yaml
+  - 01-secrets.yaml
+  - 02-configmap-aegis.yaml
+
+  # PostgreSQL
+  - 03-postgres/statefulset.yaml
+  - 03-postgres/service.yaml
+  - 03-postgres/configmap.yaml
+
+  # Redis
+  - 04-redis/statefulset.yaml
+  - 04-redis/service.yaml
+
+  # Aegis Ingestion
+  - 05-aegis-ingestion/deployment.yaml
+  - 05-aegis-ingestion/service.yaml
+  - 05-aegis-ingestion/hpa.yaml
+  - 05-aegis-ingestion/pdb.yaml
+  - 05-aegis-ingestion/serviceaccount.yaml
+
+  # Derivation Workers
+  - 06-derivation-workers/deployment.yaml
+  - 06-derivation-workers/hpa.yaml
+  - 06-derivation-workers/pdb.yaml
+  - 06-derivation-workers/serviceaccount.yaml
+
+  # GC CronJob
+  - 07-gc-cronjob.yaml
+  - 07-gc-serviceaccount.yaml
+
+  # Observability
+  - 08-observability/prometheus/configmap.yaml
+  - 08-observability/prometheus/deployment.yaml
+  - 08-observability/grafana/configmap.yaml
+  - 08-observability/grafana/dashboards-configmap.yaml
+  - 08-observability/grafana/deployment.yaml
+  - 08-observability/jaeger/deployment.yaml
+
+  # Network Policies
+  - 09-network/default-deny.yaml
+  - 09-network/aegis-ingestion.yaml
+  - 09-network/postgres.yaml
+  - 09-network/redis.yaml
+  - 09-network/prometheus.yaml
+
+commonLabels:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/part-of: aegis
+
+namespace: aegis

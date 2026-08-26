@@ -1,0 +1,131 @@
+# ============================================================================
+# Project Aegis — Aegis Ingestion Deployment
+#
+# Stateless HTTP ingress server (ingest binary). Sits behind a
+# LoadBalancer / Ingress controller. HorizontalPodAutoscaler scales
+# based on CPU utilization (50% target) and request-rate custom metric.
+#
+# Ports:
+#   8080 — application (API + /metrics + /healthz + /readyz)
+#
+# Probes:
+#   Liveness:  GET /healthz  (always 200)
+#   Readiness: GET /readyz   (pings database)
+# ============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegis-ingestion
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: aegis-ingestion
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: aegis
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aegis-ingestion
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aegis-ingestion
+        app.kubernetes.io/component: ingress
+        app.kubernetes.io/part-of: aegis
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: aegis-ingestion
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+      containers:
+        - name: ingest
+          image: ghcr.io/aegis-dev/aegis-ingest:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: aegis-config
+            - secretRef:
+                name: aegis-secrets
+          env:
+            - name: AEGIS_PRIMARY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: database-url
+            - name: AEGIS_REDIS_ADDR
+              value: redis-primary.aegis.svc.cluster.local:6379
+            - name: AEGIS_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: redis-password
+            - name: AEGIS_S3_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: s3-endpoint
+            - name: AEGIS_S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: s3-access-key
+            - name: AEGIS_S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: s3-secret-key
+            - name: AEGIS_S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: s3-bucket
+            - name: AEGIS_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: api-token
+            - name: AEGIS_JAEGER_AGENT_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: aegis-secrets
+                  key: jaeger-agent-host
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          volumeMounts: []
+      volumes: []

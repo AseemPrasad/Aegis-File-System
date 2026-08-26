@@ -1,0 +1,271 @@
+# ============================================================================
+# Project Aegis — Prometheus ConfigMap (scrape config + alert rules)
+#
+# Scrape targets:
+#   - aegis-ingestion:8080/metrics  (app + CAS + DB metrics)
+#   - postgres-exporter:9187        (pg_stat_statements)
+#   - redis-exporter:9121           (redis INFO)
+#   - prometheus self-monitoring     (9090)
+#
+# Alert rules cover the 33 Aegis-specific Prometheus collectors
+# (aegis_db_*, aegis_cas_*, aegis_ingest_*).
+# ============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: aegis
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+      - /etc/prometheus/alerts/*.yml
+
+    scrape_configs:
+      - job_name: aegis-ingestion
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ["aegis"]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: aegis-ingestion
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+            regex: (\d+)
+            target_label: __address__
+            replacement: ${1}
+            action: replace
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: ${1}
+            action: replace
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            target_label: __metrics_path__
+            action: replace
+
+      - job_name: aegis-derivation-workers
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ["aegis"]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: aegis-derivation-workers
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: ${1}
+            action: replace
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            target_label: __metrics_path__
+            action: replace
+
+      - job_name: postgres
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ["aegis"]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+            regex: "9187"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: ${1}:9187
+            action: replace
+
+      - job_name: redis
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ["aegis"]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+            regex: "9121"
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: ${1}:9121
+            action: replace
+
+      - job_name: prometheus
+        static_configs:
+          - targets: ["localhost:9090"]
+
+  alerts.yml: |
+    groups:
+      # -----------------------------------------------------------------------
+      # Ingress alerts
+      # -----------------------------------------------------------------------
+      - name: aegis_ingest
+        rules:
+          - alert: AegisHighErrorRate
+            expr: |
+              sum(rate(aegis_ingest_initiate_total{status!="ok"}[5m]))
+              + sum(rate(aegis_ingest_commit_total{status!="ok"}[5m]))
+              > 10
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Aegis high error rate (>10 errors/min)"
+              description: "Initiate+Commit error rate exceeds 10/min for 5 minutes."
+
+          - alert: AegisHighLatency
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(aegis_ingest_initiate_duration_seconds_bucket[5m])) by (le)
+              ) > 2.0
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis P99 initiate latency > 2s"
+
+          - alert: AegisCommitLatencyHigh
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(aegis_ingest_commit_duration_seconds_bucket[5m])) by (le)
+              ) > 5.0
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis P99 commit latency > 5s"
+
+          - alert: AegisQuotaExceededHigh
+            expr: |
+              rate(aegis_ingest_quota_exceeded_total[5m]) > 5
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis quota exceeded events > 5/min"
+
+      # -----------------------------------------------------------------------
+      # Database alerts
+      # -----------------------------------------------------------------------
+      - name: aegis_database
+        rules:
+          - alert: AegisDBConnectionPoolExhausted
+            expr: |
+              aegis_db_acquire_wait_seconds_count > 0
+              and
+              rate(aegis_db_acquire_wait_seconds_sum[5m])
+              / rate(aegis_db_acquire_wait_seconds_count[5m]) > 0.5
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis DB connection wait > 500ms avg"
+
+          - alert: AegisDBHighErrorRate
+            expr: |
+              sum(rate(aegis_db_query_errors_total[5m])) > 5
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Aegis DB query errors > 5/min"
+
+          - alert: AegisDBSlowQueries
+            expr: |
+              rate(aegis_db_slow_queries_total[5m]) > 10
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis slow queries > 10/min"
+
+      # -----------------------------------------------------------------------
+      # CAS / GC alerts
+      # -----------------------------------------------------------------------
+      - name: aegis_cas
+        rules:
+          - alert: AegisGCBehind
+            expr: |
+              time() - aegis_cas_gc_sweeps_total > 7200
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis GC has not run for > 2 hours"
+
+          - alert: AegisGCDeletionFailed
+            expr: |
+              rate(aegis_cas_gc_deletion_failed_total[5m]) > 0
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis GC blob deletions failing"
+
+          - alert: AegisOrphanBlocksGrowing
+            expr: |
+              aegis_cas_orphan_blocks > 10000
+            for: 30m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis orphan blocks > 10,000"
+
+          - alert: AegisGCRateLimited
+            expr: |
+              rate(aegis_cas_gc_rate_limit_hit_total[5m]) > 0
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis GC hitting rate limits"
+
+          - alert: AegisCASDedupRatioLow
+            expr: |
+              aegis_cas_dedup_ratio < 1.5
+              and
+              aegis_cas_total_blocks > 1000
+            for: 1h
+            labels:
+              severity: info
+            annotations:
+              summary: "Aegis CAS dedup ratio unusually low (<1.5)"
+
+      # -----------------------------------------------------------------------
+      # Infrastructure alerts
+      # -----------------------------------------------------------------------
+      - name: aegis_infra
+        rules:
+          - alert: AegisPodCrashLooping
+            expr: |
+              rate(kube_pod_container_status_restarts_total{namespace="aegis"}[15m]) > 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Aegis pod crash-looping"
+
+          - alert: AegisPodNotReady
+            expr: |
+              kube_pod_status_ready{namespace="aegis", condition="true"} == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Aegis pod not ready"
+
+          - alert: AegisHPAMaxedOut
+            expr: |
+              kube_horizontalpodautoscaler_status_current_replicas{namespace="aegis"}
+              == kube_horizontalpodautoscaler_spec_max_replicas{namespace="aegis"}
+            for: 15m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Aegis HPA at max replicas — consider raising limit"

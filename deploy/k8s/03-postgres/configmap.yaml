@@ -1,0 +1,37 @@
+# ============================================================================
+# Project Aegis — PostgreSQL ConfigMap
+#
+# Init SQL and pgbouncer-style connection limits applied at pod level.
+# ============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: aegis
+data:
+  postgresql.conf: |
+    # --- Performance ---
+    shared_buffers = 1GB
+    effective_cache_size = 3GB
+    work_mem = 16MB
+    maintenance_work_mem = 256MB
+
+    # --- WAL & Replication ---
+    wal_level = replica
+    max_wal_senders = 10
+    max_replication_slots = 10
+    wal_keep_size = 1GB
+
+    # --- Logging ---
+    log_min_duration_statement = 50
+    log_statement = 'ddl'
+    log_lock_waits = on
+    log_temp_files = 0
+
+    # --- Connections ---
+    max_connections = 200
+    superuser_reserved_connections = 3

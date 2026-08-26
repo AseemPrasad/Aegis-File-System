@@ -1,0 +1,54 @@
+# ============================================================================
+# Project Aegis — HorizontalPodAutoscaler (aegis-ingestion)
+#
+# Scales based on:
+#   1. CPU utilization (target 50%)
+#   2. Memory utilization (target 70%)
+#
+# Min 3 replicas, max 20 replicas.
+# Scale-up stabilization window: 60s (react quickly to load).
+# Scale-down stabilization window: 300s (avoid flapping).
+# ============================================================================
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aegis-ingestion
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: aegis-ingestion
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: aegis
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aegis-ingestion
+  minReplicas: 3
+  maxReplicas: 20
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70

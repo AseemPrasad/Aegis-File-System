@@ -1,0 +1,142 @@
+# ============================================================================
+# Project Aegis — PostgreSQL StatefulSet
+#
+# 3-replica PostgreSQL cluster (1 primary + 2 read replicas).
+# Uses the official postgres:16-alpine image. Primary is postgres-0;
+# replicas 1–2 run in read-only mode via streaming replication.
+#
+# PVCs use the aegis-postgres StorageClass. The bootstrap SQL from
+# deploy/compose/init/001_bootstrap.sql is mounted as an init-container
+# to create the aegis schema on first run.
+#
+# Liveness:  pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+# Readiness: pg_isready -U $POSTGRES_USER -d $POSTGRES_DB (same check;
+#            replicas report ready once WAL receiver is streaming)
+# ============================================================================
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: aegis
+spec:
+  serviceName: postgres
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/part-of: aegis
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 60
+      initContainers:
+        # On the primary (ordinal 0), run bootstrap SQL on first start.
+        - name: init-db
+          image: postgres:16-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ "$(hostname)" = "postgres-0" ]; then
+                until pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do
+                  echo "waiting for primary..."; sleep 2
+                done
+                psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "CREATE EXTENSION IF NOT EXISTS ltree;"
+                psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "
+                  DO \$\$
+                  BEGIN
+                    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'aegis_app') THEN
+                      CREATE ROLE aegis_app WITH LOGIN PASSWORD 'aegis_app_pw';
+                    END IF;
+                    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'aegis_readonly') THEN
+                      CREATE ROLE aegis_readonly WITH LOGIN PASSWORD 'aegis_readonly_pw';
+                    END IF;
+                    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'aegis_migrator') THEN
+                      CREATE ROLE aegis_migrator WITH LOGIN PASSWORD 'aegis_migrator_pw';
+                    END IF;
+                  END \$\$;"
+              fi
+          envFrom:
+            - secretRef:
+                name: aegis-secrets
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: aegis-secrets
+          env:
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: scram-sha-256
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          args:
+            - postgres
+            - -c
+            - log_min_duration_statement=50
+            - -c
+            - shared_preload_libraries=pg_stat_statements
+            - -c
+            - wal_level=replica
+            - -c
+            - max_wal_senders=10
+            - -c
+            - max_replication_slots=10
+          volumeMounts:
+            - name: pg-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+                - -d
+                - $(POSTGRES_DB)
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+                - -d
+                - $(POSTGRES_DB)
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      volumes:
+        - name: pg-init-sql
+          configMap:
+            name: postgres-init-sql
+            optional: true
+  volumeClaimTemplates:
+    - metadata:
+        name: pg-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 50Gi

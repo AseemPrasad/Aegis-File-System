@@ -1,0 +1,21 @@
+# ============================================================================
+# Project Aegis — PodDisruptionBudget (aegis-ingestion)
+#
+# Guarantees at least 2 pods remain available during voluntary disruptions
+# (node drains, upgrades).  maxUnavailable=1 means only 1 pod can be
+# disrupted at a time.
+# ============================================================================
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aegis-ingestion
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: aegis-ingestion
+    app.kubernetes.io/part-of: aegis
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aegis-ingestion

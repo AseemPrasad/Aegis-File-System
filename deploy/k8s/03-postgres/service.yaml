@@ -1,0 +1,60 @@
+# ============================================================================
+# Project Aegis — PostgreSQL Services
+#
+# postgres:       Headless service for StatefulSet DNS (postgres-0, postgres-1, ...)
+# postgres-primary: ClusterIP service routing to ordinal 0 (writes)
+# postgres-replica: ClusterIP service routing to replicas 1-2 (reads)
+# ============================================================================
+
+# Headless service for StatefulSet pod DNS
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: aegis
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - port: 5432
+      targetPort: postgres
+      name: postgres
+---
+# Primary (ordinal 0) — for writes
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-primary
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: aegis
+spec:
+  selector:
+    app.kubernetes.io/name: postgres
+    statefulset.kubernetes.io/pod-name: postgres-0
+  ports:
+    - port: 5432
+      targetPort: postgres
+      name: postgres
+---
+# Read replicas (ordinal 1, 2) — for read queries
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-replica
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: aegis
+spec:
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - port: 5432
+      targetPort: postgres
+      name: postgres

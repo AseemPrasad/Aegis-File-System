@@ -1,0 +1,40 @@
+# ============================================================================
+# Project Aegis — Grafana ConfigMap (datasources + dashboard providers)
+#
+# Auto-provisions Prometheus as the default datasource and loads dashboard
+# JSON from ConfigMap volumes. Dashboard JSON is in a separate ConfigMap
+# (aegis-grafana-dashboards).
+# ============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: aegis
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+        editable: false
+        jsonData:
+          timeInterval: "15s"
+
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: aegis
+        orgId: 1
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: false

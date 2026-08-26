@@ -1,0 +1,406 @@
+# ============================================================================
+# Project Aegis — Grafana Dashboard: Ingestion Overview
+#
+# Panels:
+#   1. Initiate request rate (by status)
+#   2. Commit request rate (by status)
+#   3. Initiate P50/P95/P99 latency
+#   4. Commit P50/P95/P99 latency
+#   5. CAS hit rate (dedup savings)
+#   6. Upload rate (non-dedup blocks)
+#   7. Quota exceeded rate
+#   8. Request error budget (SLI)
+# ============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegis-grafana-dashboards
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: aegis
+data:
+  aegis-ingestion.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "title": "Initiate Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate(aegis_ingest_initiate_total[5m])) by (status)",
+              "legendFormat": "{{status}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": { "lineWidth": 2, "fillOpacity": 10 }
+            }
+          }
+        },
+        {
+          "title": "Commit Request Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate(aegis_ingest_commit_total[5m])) by (status)",
+              "legendFormat": "{{status}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": { "lineWidth": 2, "fillOpacity": 10 }
+            }
+          }
+        },
+        {
+          "title": "Initiate Latency (P50 / P95 / P99)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(aegis_ingest_initiate_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P50",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(aegis_ingest_initiate_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P95",
+              "refId": "B"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(aegis_ingest_initiate_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P99",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": { "lineWidth": 2, "fillOpacity": 5 }
+            }
+          }
+        },
+        {
+          "title": "Commit Latency (P50 / P95 / P99)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(aegis_ingest_commit_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P50",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(aegis_ingest_commit_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P95",
+              "refId": "B"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(aegis_ingest_commit_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P99",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": { "lineWidth": 2, "fillOpacity": 5 }
+            }
+          }
+        },
+        {
+          "title": "CAS Deduplication Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+          "targets": [
+            {
+              "expr": "rate(aegis_ingest_cas_hits_total[5m])",
+              "legendFormat": "CAS hits/s",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(aegis_ingest_uploads_total[5m])",
+              "legendFormat": "Uploads/s",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops",
+              "custom": { "lineWidth": 2, "fillOpacity": 15 }
+            }
+          }
+        },
+        {
+          "title": "Quota Exceeded Rate",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+          "targets": [
+            {
+              "expr": "sum(rate(aegis_ingest_quota_exceeded_total[5m]))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops",
+              "thresholds": {
+                "steps": [
+                  { "color": "green", "value": 0 },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Ingestion Error Budget (SLI)",
+          "type": "gauge",
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+          "targets": [
+            {
+              "expr": "1 - (sum(rate(aegis_ingest_initiate_total{status!=\"ok\"}[30m])) + sum(rate(aegis_ingest_commit_total{status!=\"ok\"}[30m]))) / (sum(rate(aegis_ingest_initiate_total[30m])) + sum(rate(aegis_ingest_commit_total[30m])))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "min": 0, "max": 1,
+              "thresholds": {
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 0.999 },
+                  { "color": "green", "value": 0.9995 }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["aegis", "ingestion"],
+      "templating": { "list": [] },
+      "time": { "from": "now-6h", "to": "now" },
+      "title": "Aegis Ingestion Overview",
+      "uid": "aegis-ingestion-overview"
+    }
+
+  aegis-cas.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "title": "CAS Total Blocks / Bytes",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "aegis_cas_total_blocks",
+              "legendFormat": "Blocks",
+              "refId": "A"
+            },
+            {
+              "expr": "aegis_cas_total_bytes",
+              "legendFormat": "Bytes",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": { "lineWidth": 2, "fillOpacity": 10 }
+            }
+          }
+        },
+        {
+          "title": "CAS Tier Distribution",
+          "type": "bargauge",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            { "expr": "aegis_cas_hot_blocks", "legendFormat": "HOT", "refId": "A" },
+            { "expr": "aegis_cas_warm_blocks", "legendFormat": "WARM", "refId": "B" },
+            { "expr": "aegis_cas_cold_blocks", "legendFormat": "COLD", "refId": "C" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "blue", "value": 0 },
+                  { "color": "yellow", "value": 100 },
+                  { "color": "red", "value": 1000 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Orphan Blocks / Bytes",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            { "expr": "aegis_cas_orphan_blocks", "legendFormat": "Orphan Blocks", "refId": "A" },
+            { "expr": "aegis_cas_orphan_bytes", "legendFormat": "Orphan Bytes", "refId": "B" }
+          ]
+        },
+        {
+          "title": "GC Sweep Duration (P50 / P95 / P99)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, rate(aegis_cas_gc_sweep_duration_seconds_bucket[5m]))",
+              "legendFormat": "P50",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.95, rate(aegis_cas_gc_sweep_duration_seconds_bucket[5m]))",
+              "legendFormat": "P95",
+              "refId": "B"
+            },
+            {
+              "expr": "histogram_quantile(0.99, rate(aegis_cas_gc_sweep_duration_seconds_bucket[5m]))",
+              "legendFormat": "P99",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" } }
+        },
+        {
+          "title": "GC Blocks Deleted / Tombstoned / Failed",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+          "targets": [
+            { "expr": "rate(aegis_cas_gc_blocks_deleted_total[5m])", "legendFormat": "Deleted/s", "refId": "A" },
+            { "expr": "rate(aegis_cas_gc_blocks_tombstoned_total[5m])", "legendFormat": "Tombstoned/s", "refId": "B" },
+            { "expr": "rate(aegis_cas_gc_deletion_failed_total[5m])", "legendFormat": "Failed/s", "refId": "C" }
+          ]
+        },
+        {
+          "title": "Deduplication Ratio",
+          "type": "gauge",
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 16 },
+          "targets": [
+            { "expr": "aegis_cas_dedup_ratio", "refId": "A" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "min": 0, "max": 100,
+              "thresholds": {
+                "steps": [
+                  { "color": "red", "value": 0 },
+                  { "color": "yellow", "value": 1.5 },
+                  { "color": "green", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Average Ref Count",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 16 },
+          "targets": [
+            { "expr": "aegis_cas_avg_ref_count", "refId": "A" }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["aegis", "cas"],
+      "time": { "from": "now-6h", "to": "now" },
+      "title": "Aegis CAS Overview",
+      "uid": "aegis-cas-overview"
+    }
+
+  aegis-database.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "title": "DB Query Latency by Pool",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(aegis_db_query_duration_seconds_bucket[5m])) by (le, pool))",
+              "legendFormat": "{{pool}} P95",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(aegis_db_query_duration_seconds_bucket[5m])) by (le, pool))",
+              "legendFormat": "{{pool}} P99",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" } }
+        },
+        {
+          "title": "Connection Acquire Wait Time",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, rate(aegis_db_acquire_wait_seconds_bucket[5m]))",
+              "legendFormat": "P50",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.99, rate(aegis_db_acquire_wait_seconds_bucket[5m]))",
+              "legendFormat": "P99",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" } }
+        },
+        {
+          "title": "DB Query Errors by Pool",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(rate(aegis_db_query_errors_total[5m])) by (pool)",
+              "legendFormat": "{{pool}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "ops" } }
+        },
+        {
+          "title": "Slow Queries Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "expr": "rate(aegis_db_slow_queries_total[5m])",
+              "legendFormat": "Slow queries/s",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "ops" } }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["aegis", "database"],
+      "time": { "from": "now-6h", "to": "now" },
+      "title": "Aegis Database Overview",
+      "uid": "aegis-database-overview"
+    }

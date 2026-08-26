@@ -1,0 +1,56 @@
+# ============================================================================
+# Project Aegis — NetworkPolicy: Allow PostgreSQL
+#
+# PostgreSQL accepts connections only from aegis pods.
+# Replication traffic is pod-to-pod within the StatefulSet.
+# ============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres
+  namespace: aegis
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: aegis
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow from other aegis pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: aegis
+    # Allow PostgreSQL replication (pod-to-pod)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres
+    # Allow postgres-exporter
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres-exporter
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+    # Replication to other postgres pods
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres
+      ports:
+        - port: 5432
+          protocol: TCP

@@ -1,0 +1,14 @@
+# ============================================================================
+# Project Aegis — Kubernetes namespace
+#
+# All Aegis workloads live in this namespace. NetworkPolicies in 09-network
+# enforce ingress/egress restrictions within this boundary.
+# ============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aegis
+  labels:
+    app.kubernetes.io/part-of: aegis
+    app.kubernetes.io/managed-by: kubectl
