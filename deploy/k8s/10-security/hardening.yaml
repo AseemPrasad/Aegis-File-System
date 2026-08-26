@@ -1,0 +1,105 @@
+# ============================================================================
+# Project Aegis — Security Hardening K8s Manifests
+#
+# Additional security configurations for production deployment.
+# Apply after base manifests: kubectl apply -f deploy/k8s/10-security/
+# ============================================================================
+
+# --- Pod Security Standards (restricted) ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aegis
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+# --- NetworkPolicy: Deny all traffic to/from non-aegis namespaces ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-external
+  namespace: aegis
+  labels:
+    app.kubernetes.io/part-of: aegis
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: aegis
+  egress:
+    # DNS only
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+# --- LimitRange: Prevent resource exhaustion ---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: aegis-limits
+  namespace: aegis
+  labels:
+    app.kubernetes.io/part-of: aegis
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "1"
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+      max:
+        cpu: "4"
+        memory: 4Gi
+      min:
+        cpu: 50m
+        memory: 64Mi
+    - type: Pod
+      max:
+        cpu: "8"
+        memory: 8Gi
+---
+# --- ResourceQuota: Namespace-level resource caps ---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: aegis-quota
+  namespace: aegis
+  labels:
+    app.kubernetes.io/part-of: aegis
+spec:
+  hard:
+    requests.cpu: "16"
+    requests.memory: 32Gi
+    limits.cpu: "32"
+    limits.memory: 64Gi
+    pods: "50"
+    services: "20"
+    persistentvolumeclaims: "30"
+    secrets: "30"
+    configmaps: "30"
+---
+# --- SecurityContextConstraints (OpenShift) / SecurityContext (K8s) ---
+# Applied at pod level in deployment manifests:
+#   securityContext:
+#     runAsNonRoot: true
+#     runAsUser: 65534
+#     runAsGroup: 65534
+#     fsGroup: 65534
+#     seccompProfile:
+#       type: RuntimeDefault
