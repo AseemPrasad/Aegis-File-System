@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/aegis-dev/aegis/internal/telemetry"
-	"go.opentelemetry.io/otel"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func TestTracingMiddleware(t *testing.T) {
@@ -49,7 +49,8 @@ func TestW3CContextInject(t *testing.T) {
 }
 
 func TestTelemetryMetricCreation(t *testing.T) {
-	metrics := telemetry.NewDeepMetrics(otel.GetMeterProvider())
+	reg := prometheus.NewRegistry()
+	metrics := telemetry.NewDeepMetrics(reg)
 	if metrics == nil {
 		t.Error("expected non-nil DeepMetrics")
 	}
