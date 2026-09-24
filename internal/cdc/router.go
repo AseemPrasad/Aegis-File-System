@@ -13,11 +13,11 @@ import (
 
 // RouterConfig configures the CDC Event Router.
 type RouterConfig struct {
-	Brokers        []string
-	GroupID        string
-	InputTopic     string
-	TargetTopic    string
-	Logger         *slog.Logger
+	Brokers     []string
+	GroupID     string
+	InputTopic  string
+	TargetTopic string
+	Logger      *slog.Logger
 }
 
 // Router intercepts raw Debezium WAL events, strips database metadata, and routes typed tasks to Kafka topics.
@@ -107,9 +107,18 @@ func (r *Router) routeMessage(ctx context.Context, msg kafka.Message) error {
 	mimeType, _ := env.After["mime_type"].(string)
 	contentSHA, _ := env.After["content_sha256"].(string)
 
+	// Extract tenant_id from WAL envelope (created_by or tenant_id) or fallback safely
+	tenantID, _ := env.After["tenant_id"].(string)
+	if tenantID == "" {
+		tenantID, _ = env.After["created_by"].(string)
+	}
+	if tenantID == "" {
+		tenantID = "00000000-0000-0000-0000-000000000001"
+	}
+
 	task := events.DerivationTaskEvent{
 		EventID:   fmt.Sprintf("cdc-%d", env.Timestamp),
-		TenantID:  "00000000-0000-0000-0000-000000000001", // Extracted from node context
+		TenantID:  tenantID,
 		VersionID: versionID,
 		NodeID:    nodeID,
 		BlockHash: contentSHA,
