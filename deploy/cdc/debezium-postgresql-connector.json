@@ -1,0 +1,19 @@
+{
+  "name": "aegis-postgresql-cdc-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "aegis_migrator",
+    "database.password": "aegis_secret",
+    "database.dbname": "aegis",
+    "database.server.name": "aegis-db",
+    "table.include.list": "public.file_versions,public.file_manifest_blocks",
+    "plugin.name": "pgoutput",
+    "publication.name": "aegis_publication",
+    "publication.autocreate.mode": "all_tables",
+    "tombstones.on.delete": "false",
+    "decimal.handling.mode": "double"
+  }
+}
