@@ -1,7 +1,6 @@
 package ingress
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"

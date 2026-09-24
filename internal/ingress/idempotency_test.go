@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/aegis-dev/aegis/internal/ingress"
 )
 
 func TestIdempotencyResponseRecorder(t *testing.T) {
