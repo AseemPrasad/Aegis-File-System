@@ -77,9 +77,10 @@ type KMSClient interface {
 // StaticKMS is an in-memory KMSClient: deterministic, dependency-free, and
 // sufficient for the unit/fuzz battery plus the IN_MEMORY_STORES profile.
 type StaticKMS struct {
-	mu      sync.RWMutex
-	tenants map[uuid.UUID]*tenantKeys
-	now     func() time.Time
+	mu            sync.RWMutex
+	tenants       map[uuid.UUID]*tenantKeys
+	now           func() time.Time
+	autoProvision bool
 }
 
 type tenantKeys struct {
@@ -98,6 +99,13 @@ func NewStaticKMS(now func() time.Time) *StaticKMS {
 	}
 }
 
+// EnableAutoProvision enables automatic key generation for unprovisioned tenants.
+func (s *StaticKMS) EnableAutoProvision() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.autoProvision = true
+}
+
 // Provision registers a tenant with an explicitly provided initial key
 // (tests want fixed keys for golden-vector assertions).
 func (s *StaticKMS) Provision(tenantID uuid.UUID, version int, key []byte) {
@@ -113,11 +121,22 @@ func (s *StaticKMS) Provision(tenantID uuid.UUID, version int, key []byte) {
 }
 
 func (s *StaticKMS) SigningKey(_ context.Context, tenantID uuid.UUID) (int, []byte, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	tk, ok := s.tenants[tenantID]
 	if !ok {
-		return 0, nil, fmt.Errorf("auth: no keys provisioned for tenant %s", tenantID)
+		if !s.autoProvision {
+			return 0, nil, fmt.Errorf("auth: no keys provisioned for tenant %s", tenantID)
+		}
+		raw := make([]byte, 32)
+		if _, err := rand.Read(raw); err != nil {
+			return 0, nil, fmt.Errorf("auth: auto-provision key entropy: %w", err)
+		}
+		tk = &tenantKeys{
+			current:  1,
+			versions: map[int]KeyRecord{1: {Key: raw, ActivatedAt: s.now()}},
+		}
+		s.tenants[tenantID] = tk
 	}
 	rec := tk.versions[tk.current]
 	return tk.current, rec.Key, nil
@@ -125,11 +144,32 @@ func (s *StaticKMS) SigningKey(_ context.Context, tenantID uuid.UUID) (int, []by
 
 func (s *StaticKMS) VerificationKey(_ context.Context, tenantID uuid.UUID, version int) ([]byte, bool, error) {
 	s.mu.RLock()
-	defer s.mu.RUnlock()
 	tk, ok := s.tenants[tenantID]
+	s.mu.RUnlock()
+
 	if !ok {
-		return nil, false, fmt.Errorf("auth: no keys provisioned for tenant %s", tenantID)
+		if !s.autoProvision {
+			return nil, false, fmt.Errorf("auth: no keys provisioned for tenant %s", tenantID)
+		}
+		s.mu.Lock()
+		tk, ok = s.tenants[tenantID]
+		if !ok {
+			raw := make([]byte, 32)
+			if _, err := rand.Read(raw); err != nil {
+				s.mu.Unlock()
+				return nil, false, fmt.Errorf("auth: auto-provision verification key entropy: %w", err)
+			}
+			tk = &tenantKeys{
+				current:  1,
+				versions: map[int]KeyRecord{1: {Key: raw, ActivatedAt: s.now()}},
+			}
+			s.tenants[tenantID] = tk
+		}
+		s.mu.Unlock()
 	}
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	rec, ok := tk.versions[version]
 	if !ok || !rec.Active(s.now()) {
 		return nil, false, nil

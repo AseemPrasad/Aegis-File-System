@@ -91,6 +91,7 @@ func main() {
 	// Auth (HMAC tokens for pre-signed URLs)
 	// ------------------------------------------------------------------
 	kms := auth.NewStaticKMS(time.Now)
+	kms.EnableAutoProvision()
 	kms.Provision(uuid.Nil, 1, make([]byte, 32)) // bootstrap key for dev
 	nonces := auth.NewRedisNonceStore(rdb)
 	tokenGen := auth.NewTokenGenerator(kms, nonces,
@@ -231,7 +232,7 @@ func main() {
 	gcPublisher := &gcPublisherAdapter{bus: events}
 
 	// Adapt blobStore (ingress.BlobStore) to gc.BlobDeleter.
-	var gcBlob gc.BlobDeleter
+	var gcBlob gc.BlobDeleter = &noopBlobDeleter{}
 	if blobStore != nil {
 		if del, ok := blobStore.(interface {
 			DeleteBlock(ctx context.Context, blockHash string) error
@@ -347,3 +348,10 @@ func maskDSN(dsn string) string {
 	}
 	return "***"
 }
+
+type noopBlobDeleter struct{}
+
+func (n *noopBlobDeleter) DeleteBlock(_ context.Context, _ string) error {
+	return nil
+}
+
