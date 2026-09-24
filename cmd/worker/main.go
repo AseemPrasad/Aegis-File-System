@@ -27,10 +27,15 @@ func main() {
 		"brokers", *kafkaBrokers,
 		"group_id", *groupID)
 
-	// Initialize derivation workers (ClamAV, OCR, FFmpeg)
-	clamWorker := workers.NewClamAVWorker(nil)
-	ocrWorker := workers.NewOCRWorker(nil)
-	ffmpegWorker := workers.NewFFmpegWorker(nil)
+	// Initialize derivation workers with fake scanner implementations
+	scanner := workers.NewFakeScanner()
+	extractor := workers.NewFakeTextExtractor()
+	processor := workers.NewFakeVideoProcessor()
+	blockReader := workers.NewFakeBlockReader()
+
+	clamWorker := workers.NewClamAVWorker(scanner, blockReader)
+	ocrWorker := workers.NewOCRWorker(extractor, blockReader)
+	ffmpegWorker := workers.NewFFmpegWorker(processor, blockReader)
 
 	workerList := []derivation.Worker{clamWorker, ocrWorker, ffmpegWorker}
 	pool := derivation.NewWorkerPool(workerList, derivation.PoolConfig{
