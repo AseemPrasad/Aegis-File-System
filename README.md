@@ -2,10 +2,10 @@
 
 <div align="center">
 
-```
-   A E G I S   F I L E   S Y S T E M
-   Exabyte-Capable · Multi-Tenant · Content-Addressed · Zero-Trust
-```
+<img src="docs/assets/aegis_logo.svg" alt="Project Aegis Banner" width="100%" max-width="800px" />
+
+<br/>
+<br/>
 
 [![CI/CD Workflow](https://github.com/aegis-dev/aegis/actions/workflows/ci.yml/badge.svg)](https://github.com/aegis-dev/aegis/actions/workflows/ci.yml)
 [![Go Version](https://img.shields.io/badge/Go-1.25%2B-00ADD8?style=flat&logo=go)](https://go.dev/)
