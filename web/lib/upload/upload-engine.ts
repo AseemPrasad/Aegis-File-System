@@ -149,7 +149,7 @@ export class AegisUploadEngine {
             await fetch(uploadUrl, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/octet-stream' },
-              body: chunk.data,
+              body: chunk.data as unknown as BodyInit,
             });
 
             onChunkUploaded(chunk.size);
