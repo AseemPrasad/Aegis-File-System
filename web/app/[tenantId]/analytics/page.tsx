@@ -5,7 +5,7 @@ import { TreeNav } from '@/components/tree-nav';
 import { Activity, Zap, HardDrive, BarChart3 } from 'lucide-react';
 import { useFileStore } from '@/store/useFileStore';
 
-export default function TenantAnalyticsPage({ params }: { params: { tenantId: string } }) {
+export default function TenantAnalyticsPage() {
   const { totalDedupSavedBytes } = useFileStore();
 
   return (

@@ -8,8 +8,6 @@ export interface ChunkResult {
 
 const MIN_CHUNK_SIZE = 2 * 1024 * 1024; // 2MB
 const MAX_CHUNK_SIZE = 8 * 1024 * 1024; // 8MB
-const TARGET_CHUNK_SIZE = 4 * 1024 * 1024; // 4MB
-const GEAR_SEED = 0x89abcdef;
 
 // Precomputed Gear Table for FastCDC boundary detection
 const GEAR_TABLE = new Uint32Array(256);

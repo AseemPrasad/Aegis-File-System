@@ -4,7 +4,7 @@ import React from 'react';
 import { TreeNav } from '@/components/tree-nav';
 import { Settings, Key, ShieldAlert } from 'lucide-react';
 
-export default function TenantSettingsPage({ params }: { params: { tenantId: string } }) {
+export default function TenantSettingsPage() {
   return (
     <div className="flex h-screen w-screen bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden">
       <TreeNav />
