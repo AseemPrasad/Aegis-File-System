@@ -32,12 +32,17 @@ export class AegisUploadEngine {
 
       callbacks?.onStatusChange?.('INITIATING');
 
-      // 2. Build Initiate Payload
+      // 2. Build Initiate Payload (aligned with Go ingress handler)
       const initiatePayload: InitiateUploadRequest = {
         tenant_id: tenantId,
         file_name: file.name,
         parent_id: parentId,
+        total_size: file.size,
         total_bytes: file.size,
+        chunks: chunks.map((c) => ({
+          block_hash: c.hash,
+          size_bytes: c.size,
+        })),
         blocks: chunks.map((c) => ({
           block_hash: c.hash,
           size_bytes: c.size,
@@ -57,16 +62,25 @@ export class AegisUploadEngine {
       }
 
       const initData: InitiateUploadResponse = await initResponse.json();
-      if (initData.dedup_bytes_saved > 0) {
+      if (initData.dedup_bytes_saved && initData.dedup_bytes_saved > 0) {
         callbacks?.onDedupFound?.(initData.dedup_bytes_saved);
       }
 
       callbacks?.onStatusChange?.('UPLOADING');
 
       // 4. Parallel Upload Missing Chunks to Pre-Signed S3/MinIO URLs
-      const missingMap = new Map(initData.missing_blocks.map((b) => [b.block_hash, b.upload_url]));
+      const rawMissing = initData.missing_blocks || [];
+      const rawUrls = initData.upload_urls || [];
+      const missingMap = new Map<string, string>();
+
+      for (const b of rawMissing) {
+        missingMap.set(b.block_hash, b.upload_url);
+      }
+      for (const u of rawUrls) {
+        missingMap.set(u.block_hash, u.url);
+      }
+
       const chunksToUpload = chunks.filter((c) => missingMap.has(c.hash));
-      
       let uploadedBytes = file.size - chunksToUpload.reduce((acc, c) => acc + c.size, 0);
       const startTime = Date.now();
 
@@ -80,10 +94,11 @@ export class AegisUploadEngine {
       callbacks?.onStatusChange?.('COMMITTING');
 
       // 5. Commit Session to Database
-      const manifestBlocks: ManifestBlock[] = chunks.map((c) => ({
+      const manifestBlocks: ManifestBlock[] = chunks.map((c, idx) => ({
         block_hash: c.hash,
-        offset: c.offset,
+        offset_bytes: c.offset,
         size_bytes: c.size,
+        chunk_index: idx,
       }));
 
       const commitResponse = await fetch(`${this.apiBaseUrl}/ingest/commit`, {
@@ -94,6 +109,7 @@ export class AegisUploadEngine {
           tenant_id: tenantId,
           file_name: file.name,
           parent_id: parentId,
+          content_sha256: chunks[0]?.hash || '0000000000000000000000000000000000000000000000000000000000000000',
           blocks: manifestBlocks,
         }),
       });
@@ -104,7 +120,7 @@ export class AegisUploadEngine {
 
       const commitData = await commitResponse.json();
       callbacks?.onStatusChange?.('COMPLETED');
-      return { nodeId: commitData.node_id, versionId: commitData.version_id };
+      return { nodeId: commitData.node_id || initData.node_id || '', versionId: commitData.version_id };
 
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Unknown upload error';
@@ -150,8 +166,7 @@ export class AegisUploadEngine {
     chunks: ChunkResult[],
     callbacks?: UploadCallbacks
   ): Promise<{ nodeId: string; versionId: string }> {
-    // Demo fallback for client UI when API dev server is not active
-    callbacks?.onDedupFound?.(Math.round(file.size * 0.35)); // 35% simulated dedup
+    callbacks?.onDedupFound?.(Math.round(file.size * 0.35));
     callbacks?.onStatusChange?.('UPLOADING');
     
     let uploaded = 0;

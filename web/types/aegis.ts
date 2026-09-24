@@ -16,16 +16,22 @@ export interface NamespaceNode {
 
 export interface ManifestBlock {
   block_hash: string;
-  offset: number;
+  offset_bytes: number;
   size_bytes: number;
+  chunk_index?: number;
 }
 
 export interface InitiateUploadRequest {
   tenant_id: string;
   file_name: string;
   parent_id?: string | null;
-  total_bytes: number;
-  blocks: {
+  total_size?: number;
+  total_bytes?: number;
+  chunks?: {
+    block_hash: string;
+    size_bytes: number;
+  }[];
+  blocks?: {
     block_hash: string;
     size_bytes: number;
   }[];
@@ -33,26 +39,35 @@ export interface InitiateUploadRequest {
 
 export interface InitiateUploadResponse {
   session_id: string;
-  missing_blocks: {
+  node_id?: string;
+  expires_at?: string;
+  missing_blocks?: {
     block_hash: string;
     upload_url: string;
   }[];
-  existing_block_count: number;
-  dedup_bytes_saved: number;
+  upload_urls?: {
+    block_hash: string;
+    url: string;
+    size_bytes: number;
+  }[];
+  existing_block_count?: number;
+  dedup_bytes_saved?: number;
 }
 
 export interface CommitUploadRequest {
   session_id: string;
-  tenant_id: string;
-  file_name: string;
+  tenant_id?: string;
+  file_name?: string;
   parent_id?: string | null;
+  content_sha256?: string;
   blocks: ManifestBlock[];
 }
 
 export interface CommitUploadResponse {
-  node_id: string;
+  node_id?: string;
   version_id: string;
-  status: 'COMMITTED';
+  version_number?: number;
+  status?: 'COMMITTED';
 }
 
 export interface ActiveUploadItem {

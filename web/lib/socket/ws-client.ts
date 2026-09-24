@@ -3,7 +3,7 @@ import { WSEventMessage } from '../../types/aegis';
 export type WSEventHandler = (event: WSEventMessage) => void;
 
 export class AegisWebSocketClient {
-  private url: string;
+  private url?: string;
   private ws: WebSocket | null = null;
   private handlers: Set<WSEventHandler> = new Set();
   private isConnected: boolean = false;
@@ -12,15 +12,25 @@ export class AegisWebSocketClient {
   private heartbeatInterval: number = 15000;
   private heartbeatTimer: NodeJS.Timeout | null = null;
 
-  constructor(url: string = 'wss://api.aegis.internal/v1/ws') {
+  constructor(url?: string) {
     this.url = url;
+  }
+
+  private getEffectiveURL(): string {
+    if (this.url) return this.url;
+    if (typeof window !== 'undefined') {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      return `${protocol}//${window.location.host}/v1/ws`;
+    }
+    return 'wss://api.aegis.internal/v1/ws';
   }
 
   public connect(): void {
     if (typeof window === 'undefined') return;
 
     try {
-      this.ws = new WebSocket(this.url);
+      const targetUrl = this.getEffectiveURL();
+      this.ws = new WebSocket(targetUrl);
 
       this.ws.onopen = () => {
         this.isConnected = true;
