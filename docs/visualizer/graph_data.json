@@ -1,0 +1,2698 @@
+{
+  "nodes": [
+    {
+      "id": "hub_client",
+      "name": "Web Client / Edge SDK",
+      "category": "client",
+      "color": "#00d2d3",
+      "val": 25,
+      "tier": 0,
+      "desc": "Wasm FastCDC + Direct Signed Uploads"
+    },
+    {
+      "id": "hub_ingress",
+      "name": "Go Ingress Server Cluster",
+      "category": "ingress",
+      "color": "#54a0ff",
+      "val": 30,
+      "tier": 1,
+      "desc": "Stateless Auth, Session Generation & Commit API"
+    },
+    {
+      "id": "hub_rust_fastcdc",
+      "name": "Rust SIMD FastCDC Engine",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 28,
+      "tier": 1,
+      "desc": "Rolling hash content-defined chunking (1MB-8MB)"
+    },
+    {
+      "id": "hub_postgres",
+      "name": "PostgreSQL 16 Cluster (ltree + Partitions)",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 35,
+      "tier": 2,
+      "desc": "Sub-ms directory trees & 16-partition cas_blocks"
+    },
+    {
+      "id": "hub_redis",
+      "name": "Redis 7 Cluster (Rate-Limit & Locks)",
+      "category": "cache",
+      "color": "#ff4757",
+      "val": 22,
+      "tier": 2,
+      "desc": "Distributed token bucket limiters & atomic session locks"
+    },
+    {
+      "id": "hub_s3",
+      "name": "Object Storage (S3 / MinIO / Ceph)",
+      "category": "storage",
+      "color": "#1dd1a1",
+      "val": 35,
+      "tier": 3,
+      "desc": "Immutable SHA-256 CAS blob store"
+    },
+    {
+      "id": "hub_cdc",
+      "name": "Debezium CDC + Kafka Event Bus",
+      "category": "events",
+      "color": "#ff9f43",
+      "val": 26,
+      "tier": 3,
+      "desc": "WAL event streaming for zero-latency commits"
+    },
+    {
+      "id": "hub_workers",
+      "name": "Async Worker Fleet",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 24,
+      "tier": 4,
+      "desc": "ClamAV scanning, Thumbnails, EXIF & Search Indexing"
+    },
+    {
+      "id": "file_aegis/aegis_test.go",
+      "name": "aegis_test.go",
+      "path": "aegis/aegis_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (15798 bytes)"
+    },
+    {
+      "id": "file_aegis/client.go",
+      "name": "client.go",
+      "path": "aegis/client.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (8406 bytes)"
+    },
+    {
+      "id": "file_aegis/protocol.go",
+      "name": "protocol.go",
+      "path": "aegis/protocol.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2521 bytes)"
+    },
+    {
+      "id": "file_aegis/session.go",
+      "name": "session.go",
+      "path": "aegis/session.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6335 bytes)"
+    },
+    {
+      "id": "file_aegis/upload.go",
+      "name": "upload.go",
+      "path": "aegis/upload.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5876 bytes)"
+    },
+    {
+      "id": "file_cmd/cdc-router/main.go",
+      "name": "main.go",
+      "path": "cmd/cdc-router/main.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (1862 bytes)"
+    },
+    {
+      "id": "file_cmd/ingest/derivation_bridge.go",
+      "name": "derivation_bridge.go",
+      "path": "cmd/ingest/derivation_bridge.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2578 bytes)"
+    },
+    {
+      "id": "file_cmd/ingest/derivation_helpers.go",
+      "name": "derivation_helpers.go",
+      "path": "cmd/ingest/derivation_helpers.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2104 bytes)"
+    },
+    {
+      "id": "file_cmd/ingest/gc_adapter.go",
+      "name": "gc_adapter.go",
+      "path": "cmd/ingest/gc_adapter.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 13,
+      "tier": 5,
+      "desc": "Source File (4111 bytes)"
+    },
+    {
+      "id": "file_cmd/ingest/main.go",
+      "name": "main.go",
+      "path": "cmd/ingest/main.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (12569 bytes)"
+    },
+    {
+      "id": "file_cmd/migrate/main.go",
+      "name": "main.go",
+      "path": "cmd/migrate/main.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1106 bytes)"
+    },
+    {
+      "id": "file_cmd/worker/main.go",
+      "name": "main.go",
+      "path": "cmd/worker/main.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2409 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/benches/chunking.rs",
+      "name": "chunking.rs",
+      "path": "crates/fastcdc/benches/chunking.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6349 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/examples/geargen.rs",
+      "name": "geargen.rs",
+      "path": "crates/fastcdc/examples/geargen.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2263 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/src/gear.rs",
+      "name": "gear.rs",
+      "path": "crates/fastcdc/src/gear.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 14,
+      "tier": 5,
+      "desc": "Source File (4412 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/src/lib.rs",
+      "name": "lib.rs",
+      "path": "crates/fastcdc/src/lib.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (19018 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/src/scan.rs",
+      "name": "scan.rs",
+      "path": "crates/fastcdc/src/scan.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 14,
+      "tier": 5,
+      "desc": "Source File (4435 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/src/simd_arm.rs",
+      "name": "simd_arm.rs",
+      "path": "crates/fastcdc/src/simd_arm.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (2039 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/src/simd_x86.rs",
+      "name": "simd_x86.rs",
+      "path": "crates/fastcdc/src/simd_x86.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5918 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/tests/bounds.rs",
+      "name": "bounds.rs",
+      "path": "crates/fastcdc/tests/bounds.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (651 bytes)"
+    },
+    {
+      "id": "file_crates/fastcdc/tests/oracle.rs",
+      "name": "oracle.rs",
+      "path": "crates/fastcdc/tests/oracle.rs",
+      "category": "rust",
+      "color": "#e056fd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (17364 bytes)"
+    },
+    {
+      "id": "file_db/indexes.sql",
+      "name": "indexes.sql",
+      "path": "db/indexes.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5283 bytes)"
+    },
+    {
+      "id": "file_db/materialized-views.sql",
+      "name": "materialized-views.sql",
+      "path": "db/materialized-views.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6741 bytes)"
+    },
+    {
+      "id": "file_db/schema.sql",
+      "name": "schema.sql",
+      "path": "db/schema.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (15420 bytes)"
+    },
+    {
+      "id": "file_db/stored-procedures.sql",
+      "name": "stored-procedures.sql",
+      "path": "db/stored-procedures.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (20699 bytes)"
+    },
+    {
+      "id": "file_db/migrations/000001_create_initial_schema.down.sql",
+      "name": "000001_create_initial_schema.down.sql",
+      "path": "db/migrations/000001_create_initial_schema.down.sql",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (117 bytes)"
+    },
+    {
+      "id": "file_db/migrations/000001_create_initial_schema.up.sql",
+      "name": "000001_create_initial_schema.up.sql",
+      "path": "db/migrations/000001_create_initial_schema.up.sql",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (714 bytes)"
+    },
+    {
+      "id": "file_db/migrations/000003_partition_cas_tables.down.sql",
+      "name": "000003_partition_cas_tables.down.sql",
+      "path": "db/migrations/000003_partition_cas_tables.down.sql",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (153 bytes)"
+    },
+    {
+      "id": "file_db/migrations/000003_partition_cas_tables.up.sql",
+      "name": "000003_partition_cas_tables.up.sql",
+      "path": "db/migrations/000003_partition_cas_tables.up.sql",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2737 bytes)"
+    },
+    {
+      "id": "file_db/migrations/000004_add_enterprise_billing.down.sql",
+      "name": "000004_add_enterprise_billing.down.sql",
+      "path": "db/migrations/000004_add_enterprise_billing.down.sql",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (189 bytes)"
+    },
+    {
+      "id": "file_db/migrations/000004_add_enterprise_billing.up.sql",
+      "name": "000004_add_enterprise_billing.up.sql",
+      "path": "db/migrations/000004_add_enterprise_billing.up.sql",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 5,
+      "tier": 5,
+      "desc": "Source File (1647 bytes)"
+    },
+    {
+      "id": "file_db/tests/perf-plans.sql",
+      "name": "perf-plans.sql",
+      "path": "db/tests/perf-plans.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 13,
+      "tier": 5,
+      "desc": "Source File (3976 bytes)"
+    },
+    {
+      "id": "file_db/tests/perf-seed.sql",
+      "name": "perf-seed.sql",
+      "path": "db/tests/perf-seed.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 13,
+      "tier": 5,
+      "desc": "Source File (4062 bytes)"
+    },
+    {
+      "id": "file_db/tests/schema-tests.sql",
+      "name": "schema-tests.sql",
+      "path": "db/tests/schema-tests.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (37601 bytes)"
+    },
+    {
+      "id": "file_deploy/cdc/002_enable_logical_replication.sql",
+      "name": "002_enable_logical_replication.sql",
+      "path": "deploy/cdc/002_enable_logical_replication.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (502 bytes)"
+    },
+    {
+      "id": "file_deploy/compose/init/001_bootstrap.sql",
+      "name": "001_bootstrap.sql",
+      "path": "deploy/compose/init/001_bootstrap.sql",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2213 bytes)"
+    },
+    {
+      "id": "file_internal/auth/golden_test.go",
+      "name": "golden_test.go",
+      "path": "internal/auth/golden_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2262 bytes)"
+    },
+    {
+      "id": "file_internal/auth/hmac.go",
+      "name": "hmac.go",
+      "path": "internal/auth/hmac.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (14796 bytes)"
+    },
+    {
+      "id": "file_internal/auth/hmac_fuzz_test.go",
+      "name": "hmac_fuzz_test.go",
+      "path": "internal/auth/hmac_fuzz_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (9483 bytes)"
+    },
+    {
+      "id": "file_internal/auth/hmac_test.go",
+      "name": "hmac_test.go",
+      "path": "internal/auth/hmac_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (24250 bytes)"
+    },
+    {
+      "id": "file_internal/auth/integration_test.go",
+      "name": "integration_test.go",
+      "path": "internal/auth/integration_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 15,
+      "tier": 5,
+      "desc": "Source File (4688 bytes)"
+    },
+    {
+      "id": "file_internal/auth/keys.go",
+      "name": "keys.go",
+      "path": "internal/auth/keys.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6399 bytes)"
+    },
+    {
+      "id": "file_internal/auth/keys_test.go",
+      "name": "keys_test.go",
+      "path": "internal/auth/keys_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (7580 bytes)"
+    },
+    {
+      "id": "file_internal/auth/rbac.go",
+      "name": "rbac.go",
+      "path": "internal/auth/rbac.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2508 bytes)"
+    },
+    {
+      "id": "file_internal/auth/replay.go",
+      "name": "replay.go",
+      "path": "internal/auth/replay.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 11,
+      "tier": 5,
+      "desc": "Source File (3578 bytes)"
+    },
+    {
+      "id": "file_internal/auth/replay_test.go",
+      "name": "replay_test.go",
+      "path": "internal/auth/replay_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 11,
+      "tier": 5,
+      "desc": "Source File (3442 bytes)"
+    },
+    {
+      "id": "file_internal/auth/scim.go",
+      "name": "scim.go",
+      "path": "internal/auth/scim.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 10,
+      "tier": 5,
+      "desc": "Source File (3156 bytes)"
+    },
+    {
+      "id": "file_internal/auth/sso.go",
+      "name": "sso.go",
+      "path": "internal/auth/sso.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2297 bytes)"
+    },
+    {
+      "id": "file_internal/auth/sso_test.go",
+      "name": "sso_test.go",
+      "path": "internal/auth/sso_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (1884 bytes)"
+    },
+    {
+      "id": "file_internal/billing/apikey.go",
+      "name": "apikey.go",
+      "path": "internal/billing/apikey.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2211 bytes)"
+    },
+    {
+      "id": "file_internal/billing/billing_test.go",
+      "name": "billing_test.go",
+      "path": "internal/billing/billing_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 11,
+      "tier": 5,
+      "desc": "Source File (3588 bytes)"
+    },
+    {
+      "id": "file_internal/billing/license.go",
+      "name": "license.go",
+      "path": "internal/billing/license.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2960 bytes)"
+    },
+    {
+      "id": "file_internal/billing/metering.go",
+      "name": "metering.go",
+      "path": "internal/billing/metering.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2704 bytes)"
+    },
+    {
+      "id": "file_internal/billing/stripe.go",
+      "name": "stripe.go",
+      "path": "internal/billing/stripe.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 12,
+      "tier": 5,
+      "desc": "Source File (3651 bytes)"
+    },
+    {
+      "id": "file_internal/billing/types.go",
+      "name": "types.go",
+      "path": "internal/billing/types.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 5,
+      "tier": 5,
+      "desc": "Source File (1663 bytes)"
+    },
+    {
+      "id": "file_internal/cas/bloom.go",
+      "name": "bloom.go",
+      "path": "internal/cas/bloom.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5208 bytes)"
+    },
+    {
+      "id": "file_internal/cas/cas_test.go",
+      "name": "cas_test.go",
+      "path": "internal/cas/cas_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (17335 bytes)"
+    },
+    {
+      "id": "file_internal/cas/cas_unit_test.go",
+      "name": "cas_unit_test.go",
+      "path": "internal/cas/cas_unit_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (7316 bytes)"
+    },
+    {
+      "id": "file_internal/cas/gc.go",
+      "name": "gc.go",
+      "path": "internal/cas/gc.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 12,
+      "tier": 5,
+      "desc": "Source File (3862 bytes)"
+    },
+    {
+      "id": "file_internal/cas/metrics.go",
+      "name": "metrics.go",
+      "path": "internal/cas/metrics.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (7197 bytes)"
+    },
+    {
+      "id": "file_internal/cas/metrics_bloom_test.go",
+      "name": "metrics_bloom_test.go",
+      "path": "internal/cas/metrics_bloom_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (13420 bytes)"
+    },
+    {
+      "id": "file_internal/cas/pg_adapter.go",
+      "name": "pg_adapter.go",
+      "path": "internal/cas/pg_adapter.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1421 bytes)"
+    },
+    {
+      "id": "file_internal/cas/registry.go",
+      "name": "registry.go",
+      "path": "internal/cas/registry.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (10031 bytes)"
+    },
+    {
+      "id": "file_internal/cdc/router.go",
+      "name": "router.go",
+      "path": "internal/cdc/router.go",
+      "category": "events",
+      "color": "#ff9f43",
+      "val": 11,
+      "tier": 5,
+      "desc": "Source File (3389 bytes)"
+    },
+    {
+      "id": "file_internal/cdc/router_test.go",
+      "name": "router_test.go",
+      "path": "internal/cdc/router_test.go",
+      "category": "events",
+      "color": "#ff9f43",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (772 bytes)"
+    },
+    {
+      "id": "file_internal/cdc/types.go",
+      "name": "types.go",
+      "path": "internal/cdc/types.go",
+      "category": "events",
+      "color": "#ff9f43",
+      "val": 5,
+      "tier": 5,
+      "desc": "Source File (1551 bytes)"
+    },
+    {
+      "id": "file_internal/database/cache.go",
+      "name": "cache.go",
+      "path": "internal/database/cache.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6390 bytes)"
+    },
+    {
+      "id": "file_internal/database/cache_helpers_test.go",
+      "name": "cache_helpers_test.go",
+      "path": "internal/database/cache_helpers_test.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6012 bytes)"
+    },
+    {
+      "id": "file_internal/database/client.go",
+      "name": "client.go",
+      "path": "internal/database/client.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (21046 bytes)"
+    },
+    {
+      "id": "file_internal/database/client_test.go",
+      "name": "client_test.go",
+      "path": "internal/database/client_test.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (12690 bytes)"
+    },
+    {
+      "id": "file_internal/database/config.go",
+      "name": "config.go",
+      "path": "internal/database/config.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 15,
+      "tier": 5,
+      "desc": "Source File (4522 bytes)"
+    },
+    {
+      "id": "file_internal/database/errors_unix.go",
+      "name": "errors_unix.go",
+      "path": "internal/database/errors_unix.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (182 bytes)"
+    },
+    {
+      "id": "file_internal/database/errors_windows.go",
+      "name": "errors_windows.go",
+      "path": "internal/database/errors_windows.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (226 bytes)"
+    },
+    {
+      "id": "file_internal/database/failover.go",
+      "name": "failover.go",
+      "path": "internal/database/failover.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (4989 bytes)"
+    },
+    {
+      "id": "file_internal/database/failover_test.go",
+      "name": "failover_test.go",
+      "path": "internal/database/failover_test.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5667 bytes)"
+    },
+    {
+      "id": "file_internal/database/integration_test.go",
+      "name": "integration_test.go",
+      "path": "internal/database/integration_test.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (14259 bytes)"
+    },
+    {
+      "id": "file_internal/database/metrics.go",
+      "name": "metrics.go",
+      "path": "internal/database/metrics.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5798 bytes)"
+    },
+    {
+      "id": "file_internal/database/migrate.go",
+      "name": "migrate.go",
+      "path": "internal/database/migrate.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 5,
+      "tier": 5,
+      "desc": "Source File (1691 bytes)"
+    },
+    {
+      "id": "file_internal/database/migrate_test.go",
+      "name": "migrate_test.go",
+      "path": "internal/database/migrate_test.go",
+      "category": "db",
+      "color": "#5f27cd",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (329 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/derivation_unit_test.go",
+      "name": "derivation_unit_test.go",
+      "path": "internal/derivation/derivation_unit_test.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (9804 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/dlq.go",
+      "name": "dlq.go",
+      "path": "internal/derivation/dlq.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2460 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/pool.go",
+      "name": "pool.go",
+      "path": "internal/derivation/pool.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (4848 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/pool_test.go",
+      "name": "pool_test.go",
+      "path": "internal/derivation/pool_test.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (14621 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/retry.go",
+      "name": "retry.go",
+      "path": "internal/derivation/retry.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 10,
+      "tier": 5,
+      "desc": "Source File (3286 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/store.go",
+      "name": "store.go",
+      "path": "internal/derivation/store.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 10,
+      "tier": 5,
+      "desc": "Source File (3157 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/types.go",
+      "name": "types.go",
+      "path": "internal/derivation/types.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 11,
+      "tier": 5,
+      "desc": "Source File (3508 bytes)"
+    },
+    {
+      "id": "file_internal/derivation/worker.go",
+      "name": "worker.go",
+      "path": "internal/derivation/worker.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (718 bytes)"
+    },
+    {
+      "id": "file_internal/events/consumer.go",
+      "name": "consumer.go",
+      "path": "internal/events/consumer.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 12,
+      "tier": 5,
+      "desc": "Source File (3652 bytes)"
+    },
+    {
+      "id": "file_internal/events/kafka.go",
+      "name": "kafka.go",
+      "path": "internal/events/kafka.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 12,
+      "tier": 5,
+      "desc": "Source File (3614 bytes)"
+    },
+    {
+      "id": "file_internal/events/kafka_test.go",
+      "name": "kafka_test.go",
+      "path": "internal/events/kafka_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1137 bytes)"
+    },
+    {
+      "id": "file_internal/events/types.go",
+      "name": "types.go",
+      "path": "internal/events/types.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1077 bytes)"
+    },
+    {
+      "id": "file_internal/fastcdc/fastcdc.go",
+      "name": "fastcdc.go",
+      "path": "internal/fastcdc/fastcdc.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (9363 bytes)"
+    },
+    {
+      "id": "file_internal/fastcdc/fastcdc_bench_test.go",
+      "name": "fastcdc_bench_test.go",
+      "path": "internal/fastcdc/fastcdc_bench_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2849 bytes)"
+    },
+    {
+      "id": "file_internal/fastcdc/fastcdc_fuzz_test.go",
+      "name": "fastcdc_fuzz_test.go",
+      "path": "internal/fastcdc/fastcdc_fuzz_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5198 bytes)"
+    },
+    {
+      "id": "file_internal/fastcdc/fastcdc_test.go",
+      "name": "fastcdc_test.go",
+      "path": "internal/fastcdc/fastcdc_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (7178 bytes)"
+    },
+    {
+      "id": "file_internal/gc/gc.go",
+      "name": "gc.go",
+      "path": "internal/gc/gc.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (16955 bytes)"
+    },
+    {
+      "id": "file_internal/gc/gc_test.go",
+      "name": "gc_test.go",
+      "path": "internal/gc/gc_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (20010 bytes)"
+    },
+    {
+      "id": "file_internal/gc/leader.go",
+      "name": "leader.go",
+      "path": "internal/gc/leader.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2224 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/audit.go",
+      "name": "audit.go",
+      "path": "internal/ingress/audit.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2976 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/audit_test.go",
+      "name": "audit_test.go",
+      "path": "internal/ingress/audit_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2791 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/chaos_test.go",
+      "name": "chaos_test.go",
+      "path": "internal/ingress/chaos_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6961 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/commit.go",
+      "name": "commit.go",
+      "path": "internal/ingress/commit.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 13,
+      "tier": 5,
+      "desc": "Source File (4045 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/cors.go",
+      "name": "cors.go",
+      "path": "internal/ingress/cors.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2533 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/cors_test.go",
+      "name": "cors_test.go",
+      "path": "internal/ingress/cors_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 15,
+      "tier": 5,
+      "desc": "Source File (4651 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/events.go",
+      "name": "events.go",
+      "path": "internal/ingress/events.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2652 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/handler_coverage_test.go",
+      "name": "handler_coverage_test.go",
+      "path": "internal/ingress/handler_coverage_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (13964 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/idempotency.go",
+      "name": "idempotency.go",
+      "path": "internal/ingress/idempotency.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2691 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/idempotency_test.go",
+      "name": "idempotency_test.go",
+      "path": "internal/ingress/idempotency_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (695 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/initiate.go",
+      "name": "initiate.go",
+      "path": "internal/ingress/initiate.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 13,
+      "tier": 5,
+      "desc": "Source File (4051 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/integration_test.go",
+      "name": "integration_test.go",
+      "path": "internal/ingress/integration_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5951 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/metrics.go",
+      "name": "metrics.go",
+      "path": "internal/ingress/metrics.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (1986 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/models.go",
+      "name": "models.go",
+      "path": "internal/ingress/models.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (7814 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/models_test.go",
+      "name": "models_test.go",
+      "path": "internal/ingress/models_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6432 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/ratelimit.go",
+      "name": "ratelimit.go",
+      "path": "internal/ingress/ratelimit.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 11,
+      "tier": 5,
+      "desc": "Source File (3344 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/ratelimit_test.go",
+      "name": "ratelimit_test.go",
+      "path": "internal/ingress/ratelimit_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (4900 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/redis_ratelimit.go",
+      "name": "redis_ratelimit.go",
+      "path": "internal/ingress/redis_ratelimit.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2549 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/server.go",
+      "name": "server.go",
+      "path": "internal/ingress/server.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (7967 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/server_test.go",
+      "name": "server_test.go",
+      "path": "internal/ingress/server_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (13716 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/sla_test.go",
+      "name": "sla_test.go",
+      "path": "internal/ingress/sla_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (7336 bytes)"
+    },
+    {
+      "id": "file_internal/ingress/store.go",
+      "name": "store.go",
+      "path": "internal/ingress/store.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (16407 bytes)"
+    },
+    {
+      "id": "file_internal/lock/advisory.go",
+      "name": "advisory.go",
+      "path": "internal/lock/advisory.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (2006 bytes)"
+    },
+    {
+      "id": "file_internal/lock/leader.go",
+      "name": "leader.go",
+      "path": "internal/lock/leader.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2612 bytes)"
+    },
+    {
+      "id": "file_internal/lock/lock.go",
+      "name": "lock.go",
+      "path": "internal/lock/lock.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (929 bytes)"
+    },
+    {
+      "id": "file_internal/lock/lock_test.go",
+      "name": "lock_test.go",
+      "path": "internal/lock/lock_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1135 bytes)"
+    },
+    {
+      "id": "file_internal/lock/redlock.go",
+      "name": "redlock.go",
+      "path": "internal/lock/redlock.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2212 bytes)"
+    },
+    {
+      "id": "file_internal/objectstorage/minio.go",
+      "name": "minio.go",
+      "path": "internal/objectstorage/minio.go",
+      "category": "storage",
+      "color": "#1dd1a1",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5917 bytes)"
+    },
+    {
+      "id": "file_internal/objectstorage/s3.go",
+      "name": "s3.go",
+      "path": "internal/objectstorage/s3.go",
+      "category": "storage",
+      "color": "#1dd1a1",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6482 bytes)"
+    },
+    {
+      "id": "file_internal/objectstorage/s3_helpers_test.go",
+      "name": "s3_helpers_test.go",
+      "path": "internal/objectstorage/s3_helpers_test.go",
+      "category": "storage",
+      "color": "#1dd1a1",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2454 bytes)"
+    },
+    {
+      "id": "file_internal/objectstorage/storage.go",
+      "name": "storage.go",
+      "path": "internal/objectstorage/storage.go",
+      "category": "storage",
+      "color": "#1dd1a1",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5247 bytes)"
+    },
+    {
+      "id": "file_internal/objectstorage/storage_test.go",
+      "name": "storage_test.go",
+      "path": "internal/objectstorage/storage_test.go",
+      "category": "storage",
+      "color": "#1dd1a1",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (10128 bytes)"
+    },
+    {
+      "id": "file_internal/telemetry/logging.go",
+      "name": "logging.go",
+      "path": "internal/telemetry/logging.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (579 bytes)"
+    },
+    {
+      "id": "file_internal/telemetry/metrics.go",
+      "name": "metrics.go",
+      "path": "internal/telemetry/metrics.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1433 bytes)"
+    },
+    {
+      "id": "file_internal/telemetry/telemetry_test.go",
+      "name": "telemetry_test.go",
+      "path": "internal/telemetry/telemetry_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1425 bytes)"
+    },
+    {
+      "id": "file_internal/telemetry/tracing.go",
+      "name": "tracing.go",
+      "path": "internal/telemetry/tracing.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 5,
+      "tier": 5,
+      "desc": "Source File (1689 bytes)"
+    },
+    {
+      "id": "file_internal/workers/clamav.go",
+      "name": "clamav.go",
+      "path": "internal/workers/clamav.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 10,
+      "tier": 5,
+      "desc": "Source File (3106 bytes)"
+    },
+    {
+      "id": "file_internal/workers/embed.go",
+      "name": "embed.go",
+      "path": "internal/workers/embed.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (1993 bytes)"
+    },
+    {
+      "id": "file_internal/workers/fakes.go",
+      "name": "fakes.go",
+      "path": "internal/workers/fakes.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 15,
+      "tier": 5,
+      "desc": "Source File (4537 bytes)"
+    },
+    {
+      "id": "file_internal/workers/ffmpeg.go",
+      "name": "ffmpeg.go",
+      "path": "internal/workers/ffmpeg.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2347 bytes)"
+    },
+    {
+      "id": "file_internal/workers/interfaces.go",
+      "name": "interfaces.go",
+      "path": "internal/workers/interfaces.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2572 bytes)"
+    },
+    {
+      "id": "file_internal/workers/mime_test.go",
+      "name": "mime_test.go",
+      "path": "internal/workers/mime_test.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2727 bytes)"
+    },
+    {
+      "id": "file_internal/workers/ocr.go",
+      "name": "ocr.go",
+      "path": "internal/workers/ocr.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (2049 bytes)"
+    },
+    {
+      "id": "file_internal/workers/workers_test.go",
+      "name": "workers_test.go",
+      "path": "internal/workers/workers_test.go",
+      "category": "workers",
+      "color": "#ff6b6b",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (10819 bytes)"
+    },
+    {
+      "id": "file_tests/chaos/fault_injection_test.go",
+      "name": "fault_injection_test.go",
+      "path": "tests/chaos/fault_injection_test.go",
+      "category": "go_core",
+      "color": "#70a1ff",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1280 bytes)"
+    },
+    {
+      "id": "file_web/next-env.d.ts",
+      "name": "next-env.d.ts",
+      "path": "web/next-env.d.ts",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (228 bytes)"
+    },
+    {
+      "id": "file_web/tailwind.config.ts",
+      "name": "tailwind.config.ts",
+      "path": "web/tailwind.config.ts",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (395 bytes)"
+    },
+    {
+      "id": "file_web/app/layout.tsx",
+      "name": "layout.tsx",
+      "path": "web/app/layout.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (742 bytes)"
+    },
+    {
+      "id": "file_web/app/page.tsx",
+      "name": "page.tsx",
+      "path": "web/app/page.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5436 bytes)"
+    },
+    {
+      "id": "file_web/app/[tenantId]/analytics/page.tsx",
+      "name": "page.tsx",
+      "path": "web/app/[tenantId]/analytics/page.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2774 bytes)"
+    },
+    {
+      "id": "file_web/app/[tenantId]/files/page.tsx",
+      "name": "page.tsx",
+      "path": "web/app/[tenantId]/files/page.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 4,
+      "tier": 5,
+      "desc": "Source File (1331 bytes)"
+    },
+    {
+      "id": "file_web/app/[tenantId]/settings/page.tsx",
+      "name": "page.tsx",
+      "path": "web/app/[tenantId]/settings/page.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 8,
+      "tier": 5,
+      "desc": "Source File (2404 bytes)"
+    },
+    {
+      "id": "file_web/components/data-table.tsx",
+      "name": "data-table.tsx",
+      "path": "web/components/data-table.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (5354 bytes)"
+    },
+    {
+      "id": "file_web/components/tree-nav.tsx",
+      "name": "tree-nav.tsx",
+      "path": "web/components/tree-nav.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 10,
+      "tier": 5,
+      "desc": "Source File (3244 bytes)"
+    },
+    {
+      "id": "file_web/components/upload-monitor.tsx",
+      "name": "upload-monitor.tsx",
+      "path": "web/components/upload-monitor.tsx",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 14,
+      "tier": 5,
+      "desc": "Source File (4202 bytes)"
+    },
+    {
+      "id": "file_web/lib/fastcdc/fastcdc.ts",
+      "name": "fastcdc.ts",
+      "path": "web/lib/fastcdc/fastcdc.ts",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 7,
+      "tier": 5,
+      "desc": "Source File (2242 bytes)"
+    },
+    {
+      "id": "file_web/lib/socket/ws-client.ts",
+      "name": "ws-client.ts",
+      "path": "web/lib/socket/ws-client.ts",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 9,
+      "tier": 5,
+      "desc": "Source File (2919 bytes)"
+    },
+    {
+      "id": "file_web/lib/upload/upload-engine.ts",
+      "name": "upload-engine.ts",
+      "path": "web/lib/upload/upload-engine.ts",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 16,
+      "tier": 5,
+      "desc": "Source File (6478 bytes)"
+    },
+    {
+      "id": "file_web/store/useFileStore.ts",
+      "name": "useFileStore.ts",
+      "path": "web/store/useFileStore.ts",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 14,
+      "tier": 5,
+      "desc": "Source File (4496 bytes)"
+    },
+    {
+      "id": "file_web/types/aegis.ts",
+      "name": "aegis.ts",
+      "path": "web/types/aegis.ts",
+      "category": "frontend",
+      "color": "#00d2d3",
+      "val": 6,
+      "tier": 5,
+      "desc": "Source File (2063 bytes)"
+    }
+  ],
+  "links": [
+    {
+      "source": "hub_client",
+      "target": "hub_ingress",
+      "label": "HTTP/2 Session & Commit Requests",
+      "value": 5
+    },
+    {
+      "source": "hub_client",
+      "target": "hub_s3",
+      "label": "Direct Presigned Put Object",
+      "value": 8
+    },
+    {
+      "source": "hub_ingress",
+      "target": "hub_rust_fastcdc",
+      "label": "CGo/FFI SIMD Chunking",
+      "value": 6
+    },
+    {
+      "source": "hub_ingress",
+      "target": "hub_redis",
+      "label": "Quota & Token Bucket Lock",
+      "value": 4
+    },
+    {
+      "source": "hub_ingress",
+      "target": "hub_postgres",
+      "label": "ltree Tree Insert & CAS Dedup Query",
+      "value": 7
+    },
+    {
+      "source": "hub_postgres",
+      "target": "hub_cdc",
+      "label": "PostgreSQL WAL Replication Stream",
+      "value": 6
+    },
+    {
+      "source": "hub_cdc",
+      "target": "hub_workers",
+      "label": "Event Fan-out (NATS/Kafka)",
+      "value": 5
+    },
+    {
+      "source": "hub_workers",
+      "target": "hub_s3",
+      "label": "Read Original / Write Derivations",
+      "value": 4
+    },
+    {
+      "source": "hub_workers",
+      "target": "hub_postgres",
+      "label": "Update Derivation Metadata",
+      "value": 4
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_aegis/aegis_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_aegis/client.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_aegis/protocol.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_aegis/session.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_aegis/upload.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_cmd/cdc-router/main.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_cmd/ingest/derivation_bridge.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_cmd/ingest/derivation_helpers.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_cmd/ingest/gc_adapter.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_cmd/ingest/main.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_cmd/migrate/main.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_cmd/worker/main.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/benches/chunking.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/examples/geargen.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/src/gear.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/src/lib.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/src/scan.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/src/simd_arm.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/src/simd_x86.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/tests/bounds.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_rust_fastcdc",
+      "target": "file_crates/fastcdc/tests/oracle.rs",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_db/indexes.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_db/materialized-views.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_db/schema.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_db/stored-procedures.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_db/migrations/000001_create_initial_schema.down.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_db/migrations/000001_create_initial_schema.up.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_db/migrations/000003_partition_cas_tables.down.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_db/migrations/000003_partition_cas_tables.up.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_db/migrations/000004_add_enterprise_billing.down.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_db/migrations/000004_add_enterprise_billing.up.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_db/tests/perf-plans.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_db/tests/perf-seed.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_db/tests/schema-tests.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_deploy/cdc/002_enable_logical_replication.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_deploy/compose/init/001_bootstrap.sql",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/golden_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/hmac.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/hmac_fuzz_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/hmac_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/integration_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/keys.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/keys_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/rbac.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/replay.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/replay_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/scim.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/sso.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/auth/sso_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/billing/apikey.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/billing/billing_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/billing/license.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/billing/metering.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/billing/stripe.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/billing/types.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/bloom.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/cas_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/cas_unit_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/gc.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/metrics.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/metrics_bloom_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/pg_adapter.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/cas/registry.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_cdc",
+      "target": "file_internal/cdc/router.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_cdc",
+      "target": "file_internal/cdc/router_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_cdc",
+      "target": "file_internal/cdc/types.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/cache.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/cache_helpers_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/client.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/client_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/config.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/errors_unix.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/errors_windows.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/failover.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/failover_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/integration_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/metrics.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/migrate.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_postgres",
+      "target": "file_internal/database/migrate_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/derivation_unit_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/dlq.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/pool.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/pool_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/retry.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/store.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/types.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/derivation/worker.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/events/consumer.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/events/kafka.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/events/kafka_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/events/types.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/fastcdc/fastcdc.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/fastcdc/fastcdc_bench_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/fastcdc/fastcdc_fuzz_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/fastcdc/fastcdc_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/gc/gc.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/gc/gc_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/gc/leader.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/audit.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/audit_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/chaos_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/commit.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/cors.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/cors_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/events.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/handler_coverage_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/idempotency.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/idempotency_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/initiate.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/integration_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/metrics.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/models.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/models_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/ratelimit.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/ratelimit_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/redis_ratelimit.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/server.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/server_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/sla_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/ingress/store.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/lock/advisory.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/lock/leader.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/lock/lock.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/lock/lock_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/lock/redlock.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_s3",
+      "target": "file_internal/objectstorage/minio.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_s3",
+      "target": "file_internal/objectstorage/s3.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_s3",
+      "target": "file_internal/objectstorage/s3_helpers_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_s3",
+      "target": "file_internal/objectstorage/storage.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_s3",
+      "target": "file_internal/objectstorage/storage_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/telemetry/logging.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/telemetry/metrics.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/telemetry/telemetry_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_internal/telemetry/tracing.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/clamav.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/embed.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/fakes.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/ffmpeg.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/interfaces.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/mime_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/ocr.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_workers",
+      "target": "file_internal/workers/workers_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_ingress",
+      "target": "file_tests/chaos/fault_injection_test.go",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/next-env.d.ts",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/tailwind.config.ts",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/app/layout.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/app/page.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/app/[tenantId]/analytics/page.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/app/[tenantId]/files/page.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/app/[tenantId]/settings/page.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/components/data-table.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/components/tree-nav.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/components/upload-monitor.tsx",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/lib/fastcdc/fastcdc.ts",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/lib/socket/ws-client.ts",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/lib/upload/upload-engine.ts",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/store/useFileStore.ts",
+      "label": "Contains File",
+      "value": 1
+    },
+    {
+      "source": "hub_client",
+      "target": "file_web/types/aegis.ts",
+      "label": "Contains File",
+      "value": 1
+    }
+  ],
+  "tours": [
+    {
+      "step": 1,
+      "title": "1. Client & WebAssembly FastCDC",
+      "focus_node": "hub_client",
+      "desc": "Clients compute FastCDC rolling hashes locally in Wasm/TypeScript. The backend validates chunk manifests to perform global zero-byte deduplication before raw binary uploads."
+    },
+    {
+      "step": 2,
+      "title": "2. Stateless Ingress & Auth Engine",
+      "focus_node": "hub_ingress",
+      "desc": "Go ingress API verifies tenant-scoped HMAC upload nonces, evaluates token bucket rate limits in Redis, and issues presigned direct-to-S3 storage tokens."
+    },
+    {
+      "step": 3,
+      "title": "3. High-Performance Rust SIMD Chunking",
+      "focus_node": "hub_rust_fastcdc",
+      "desc": "Server-side content-defined chunking executes via SIMD-accelerated Rust FFI bindings, achieving >15,000 ops/sec processing speed with zero-copy buffer slicing."
+    },
+    {
+      "step": 4,
+      "title": "4. PostgreSQL 16 Metadata & ltree Hierarchy",
+      "focus_node": "hub_postgres",
+      "desc": "Metadata operations execute in sub-milliseconds using PostgreSQL ltree for O(1) directory tree moves and 16 declarative hash partitions for cas_blocks."
+    },
+    {
+      "step": 5,
+      "title": "5. Content-Addressed Object Storage (CAS)",
+      "focus_node": "hub_s3",
+      "desc": "Physical binary payload bytes stream directly into S3/MinIO object storage under immutable SHA-256 CAS keys, isolated from metadata control plane traffic."
+    },
+    {
+      "step": 6,
+      "title": "6. Debezium CDC Event Bus & Workers",
+      "focus_node": "hub_cdc",
+      "desc": "PostgreSQL WAL commits stream into Debezium CDC and Kafka/NATS channels, triggering asynchronous background workers for ClamAV virus scanning, thumbnails, and indexing."
+    }
+  ]
+}

@@ -8,9 +8,9 @@
 ```
 
 [![CI/CD Workflow](https://github.com/aegis-dev/aegis/actions/workflows/ci.yml/badge.svg)](https://github.com/aegis-dev/aegis/actions/workflows/ci.yml)
-[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![Go Version](https://img.shields.io/badge/Go-1.25%2B-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![Rust Edition](https://img.shields.io/badge/Rust-2021-000000?style=flat&logo=rust)](https://www.rust-lang.org/)
-[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16%2B%20ltree-4169E1?style=flat&logo=postgresql)](https://www.postgresql.org/)
+[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16%2B_ltree-4169E1?style=flat&logo=postgresql)](https://www.postgresql.org/)
 [![Redis Cluster](https://img.shields.io/badge/Redis-7%2B-DC382D?style=flat&logo=redis)](https://redis.io/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14%2B-000000?style=flat&logo=next.js)](https://nextjs.org/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
@@ -202,6 +202,7 @@ curl -X POST http://localhost:8080/api/v1/ingest/commit \
 - [🌐 OpenAPI 3.0 & REST API Reference](docs/API_REFERENCE.md)
 - [🛠️ Operational Infrastructure & Helm Deployment Runbook](docs/OPERATIONAL_RUNBOOK.md)
 - [🔥 Disaster Recovery & Business Continuity Plan](docs/DISASTER_RECOVERY.md)
+- [🎨 Interactive 3D Architecture Visualizer & Guided Tour](docs/visualizer/index.html)
 - **Subsystem Deep-Dive Technical Specifications:**
   - [01. FastCDC SIMD Chunker Engine](docs/subsystems/01_fastcdc_engine.md)
   - [02. Ingress Security & 90-Day KMS Key Rotation](docs/subsystems/02_ingress_security.md)

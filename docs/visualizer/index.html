@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Aegis 3D Architecture Visualizer & Interactive Tour</title>
+  
+  <!-- Tailwind CSS CDN for Glassmorphism HUD -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 3D Force Graph Library & Three.js CDN -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/3d-force-graph@1.73.1/dist/3d-force-graph.min.js"></script>
+  
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #090d16;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    #3d-graph {
+      width: 100vw;
+      height: 100vh;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    /* Custom Scrollbar for HUD */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="text-slate-100 antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="3d-graph"></div>
+
+  <!-- Header Overlay -->
+  <header class="absolute top-4 left-4 z-20 flex items-center space-x-3 pointer-events-none">
+    <div class="glass-panel px-5 py-3 rounded-2xl flex items-center space-x-4 pointer-events-auto shadow-2xl">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg text-xl">
+        🛡️
+      </div>
+      <div>
+        <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-400">
+          PROJECT AEGIS 3D VISUALIZER
+        </h1>
+        <p class="text-xs text-slate-400 font-medium">Exabyte-Scale Distributed Storage Architecture</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tour Control Panel -->
+  <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
+    <div class="glass-panel px-6 py-3.5 rounded-full flex items-center space-x-4 shadow-2xl">
+      <button id="btn-prev" onclick="prevTourStep()" class="px-3.5 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-all disabled:opacity-40">
+        ← Prev
+      </button>
+      
+      <div class="text-center px-2">
+        <div id="tour-step-badge" class="text-[10px] uppercase font-bold tracking-widest text-cyan-400">
+          OVERVIEW MODE
+        </div>
+        <div id="tour-step-title" class="text-sm font-semibold text-white max-w-xs truncate">
+          Free 3D Exploration
+        </div>
+      </div>
+
+      <button id="btn-next" onclick="nextTourStep()" class="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-xs font-semibold text-white shadow-lg transition-all">
+        Start Tour →
+      </button>
+    </div>
+  </div>
+
+  <!-- Right HUD: Subsystem & Node Inspector Panel -->
+  <aside id="inspector-panel" class="absolute top-4 right-4 bottom-4 w-96 z-20 glass-panel rounded-3xl p-6 flex flex-col justify-between shadow-2xl transition-all duration-300">
+    <div>
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-4">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Node Inspector</h2>
+        <span id="node-type-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+          System Core
+        </span>
+      </div>
+
+      <div id="inspector-content">
+        <h3 id="node-title" class="text-xl font-bold text-white mb-2">Project Aegis Engine</h3>
+        <p id="node-desc" class="text-sm text-slate-300 leading-relaxed mb-6">
+          Click on any node in the 3D space to inspect its subsystem, file dependencies, and architectural role.
+        </p>
+
+        <!-- Dynamic Key-Value Details -->
+        <div class="space-y-3 border-t border-slate-800/80 pt-4">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-400">Category</span>
+            <span id="node-category" class="font-semibold text-slate-200">Distributed Core</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-400">File Path</span>
+            <span id="node-path" class="font-mono text-cyan-400 truncate max-w-[200px]">internal/</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-400">Connections</span>
+            <span id="node-links-count" class="font-semibold text-indigo-400">167 Active Links</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subsystem Legend -->
+    <div class="border-t border-slate-800/80 pt-4 mt-4">
+      <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Subsystem Legend</h4>
+      <div class="grid grid-cols-2 gap-2 text-[11px]">
+        <div class="flex items-center space-x-2"><span class="w-2.5 h-2.5 rounded-full bg-[#e056fd]"></span><span class="text-slate-300">Rust FastCDC</span></div>
+        <div class="flex items-center space-x-2"><span class="w-2.5 h-2.5 rounded-full bg-[#54a0ff]"></span><span class="text-slate-300">Go Ingress API</span></div>
+        <div class="flex items-center space-x-2"><span class="w-2.5 h-2.5 rounded-full bg-[#5f27cd]"></span><span class="text-slate-300">PostgreSQL ltree</span></div>
+        <div class="flex items-center space-x-2"><span class="w-2.5 h-2.5 rounded-full bg-[#1dd1a1]"></span><span class="text-slate-300">S3 CAS Storage</span></div>
+        <div class="flex items-center space-x-2"><span class="w-2.5 h-2.5 rounded-full bg-[#ff9f43]"></span><span class="text-slate-300">Debezium CDC</span></div>
+        <div class="flex items-center space-x-2"><span class="w-2.5 h-2.5 rounded-full bg-[#ff6b6b]"></span><span class="text-slate-300">Async Workers</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Interactive 3D Script -->
+  <script>
+    let graphData = null;
+    let Graph = null;
+    let currentTourIndex = -1;
+
+    // Fetch Graph Data
+    fetch('graph_data.json')
+      .then(res => res.json())
+      .then(data => {
+        graphData = data;
+        init3DGraph();
+      });
+
+    function init3DGraph() {
+      const container = document.getElementById('3d-graph');
+
+      Graph = ForceGraph3D()(container)
+        .graphData(graphData)
+        .nodeId('id')
+        .nodeLabel('name')
+        .nodeVal('val')
+        .nodeColor('color')
+        .nodeRelSize(4)
+        .linkOpacity(0.3)
+        .linkWidth(1.5)
+        .linkColor(link => '#475569')
+        .linkDirectionalParticles(2)
+        .linkDirectionalParticleSpeed(0.006)
+        .linkDirectionalParticleWidth(2)
+        .onNodeClick(node => {
+          focusNode(node);
+          inspectNode(node);
+        })
+        .onBackgroundClick(() => {
+          resetInspection();
+        });
+
+      // Initial Camera Position
+      Graph.cameraPosition({ x: 0, y: 0, z: 450 });
+    }
+
+    function focusNode(node) {
+      const distance = 80;
+      const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+
+      Graph.cameraPosition(
+        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+        node,
+        1500
+      );
+    }
+
+    function inspectNode(node) {
+      document.getElementById('node-title').innerText = node.name;
+      document.getElementById('node-desc').innerText = node.desc || `Source component belonging to the ${node.category} layer.`;
+      document.getElementById('node-category').innerText = node.category.toUpperCase();
+      document.getElementById('node-path').innerText = node.path || node.id;
+      document.getElementById('node-type-badge').innerText = node.tier === 0 ? "Edge Client" : node.tier < 4 ? "Core Infrastructure" : "Source File";
+
+      // Count connections
+      const linksCount = graphData.links.filter(l => (l.source.id === node.id || l.source === node.id || l.target.id === node.id || l.target === node.id)).length;
+      document.getElementById('node-links-count').innerText = `${linksCount} Connected Nodes`;
+    }
+
+    function resetInspection() {
+      document.getElementById('node-title').innerText = "Project Aegis Engine";
+      document.getElementById('node-desc').innerText = "Click on any node in the 3D space to inspect its subsystem, file dependencies, and architectural role.";
+      document.getElementById('node-category').innerText = "Distributed Core";
+      document.getElementById('node-path').innerText = "internal/";
+      document.getElementById('node-links-count').innerText = `${graphData.links.length} Active Links`;
+      document.getElementById('node-type-badge').innerText = "System Core";
+    }
+
+    // Guided Tour Controls
+    function nextTourStep() {
+      if (!graphData || !graphData.tours) return;
+      currentTourIndex = (currentTourIndex + 1) % graphData.tours.length;
+      updateTourStep();
+    }
+
+    function prevTourStep() {
+      if (!graphData || !graphData.tours) return;
+      currentTourIndex = (currentTourIndex - 1 + graphData.tours.length) % graphData.tours.length;
+      updateTourStep();
+    }
+
+    function updateTourStep() {
+      const tour = graphData.tours[currentTourIndex];
+      const targetNode = graphData.nodes.find(n => n.id === tour.focus_node);
+
+      document.getElementById('tour-step-badge').innerText = `STEP ${tour.step} OF ${graphData.tours.length}`;
+      document.getElementById('tour-step-title').innerText = tour.title;
+      document.getElementById('btn-next').innerText = currentTourIndex === graphData.tours.length - 1 ? "Finish Tour ↺" : "Next Step →";
+
+      if (targetNode) {
+        focusNode(targetNode);
+        inspectNode(targetNode);
+        document.getElementById('node-title').innerText = tour.title;
+        document.getElementById('node-desc').innerText = tour.desc;
+      }
+    }
+  </script>
+</body>
+</html>
