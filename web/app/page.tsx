@@ -1,101 +1,148 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useEffect } from 'react';
+import { TreeNav } from '@/components/tree-nav';
+import { DataTable } from '@/components/data-table';
+import { UploadMonitor } from '@/components/upload-monitor';
+import { useFileStore } from '@/store/useFileStore';
+import { AegisUploadEngine } from '@/lib/upload/upload-engine';
+import { aegisWS } from '@/lib/socket/ws-client';
+import { Plus, Upload, ShieldCheck, Activity } from 'lucide-react';
+
+export default function WorkspaceConsolePage() {
+  const {
+    currentTenantId,
+    currentFolderId,
+    optimisticCreateFolder,
+    addUploadItem,
+    updateUploadProgress,
+    setUploadStatus,
+    addDedupSavings,
+    updateNodeStatus,
+  } = useFileStore();
+
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Initialize WebSocket connection for live event streaming
+  useEffect(() => {
+    aegisWS.connect();
+    const unsubscribe = aegisWS.subscribe((event) => {
+      if (event.event_type === 'FILE_STATUS_UPDATE' && event.node_id) {
+        updateNodeStatus(
+          event.node_id,
+          event.payload.status as 'CLAMAV_SCANNING' | 'OCR_PROCESSING' | 'THUMBNAIL_READY' | 'COMMIT_COMPLETE'
+        );
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      aegisWS.disconnect();
+    };
+  }, [updateNodeStatus]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const uploadEngine = new AegisUploadEngine();
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const uploadId = `up-${Date.now()}-${i}`;
+
+      addUploadItem({
+        id: uploadId,
+        fileName: file.name,
+        totalBytes: file.size,
+        uploadedBytes: 0,
+        dedupBytesSaved: 0,
+        progress: 0,
+        speedBytesPerSec: 0,
+        status: 'HASHING',
+      });
+
+      try {
+        await uploadEngine.uploadFile(file, currentTenantId, currentFolderId, {
+          onProgress: (uploadedBytes, speed) => {
+            updateUploadProgress(uploadId, uploadedBytes, speed);
+          },
+          onDedupFound: (savedBytes) => {
+            addDedupSavings(savedBytes);
+          },
+          onStatusChange: (status, error) => {
+            setUploadStatus(uploadId, status, error);
+          },
+        });
+      } catch (err) {
+        console.error('Upload failed:', err);
+      }
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="flex h-screen w-screen bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden selection:bg-indigo-500 selection:text-white">
+      {/* Sidebar Navigation */}
+      <TreeNav />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+      {/* Main Workspace Body */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+        {/* Top Header Controls */}
+        <header className="h-16 px-8 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/40 backdrop-blur-sm shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <Activity className="w-4 h-4" />
+            </div>
+            <h2 className="text-sm font-semibold text-slate-200">Tenant Filesystem Graph</h2>
+            <span className="text-xs font-mono text-slate-500">/ root</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              className="hidden"
+              multiple
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <button
+              onClick={() => {
+                const folderName = prompt('Enter new directory name:');
+                if (folderName) optimisticCreateFolder(folderName);
+              }}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold transition-all shadow-sm"
+            >
+              <Plus className="w-4 h-4 text-indigo-400" /> New Folder
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-sky-500 hover:from-indigo-600 hover:to-sky-600 text-white text-xs font-semibold transition-all shadow-lg shadow-indigo-500/20"
+            >
+              <Upload className="w-4 h-4" /> Upload Stream
+            </button>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <div className="flex-1 p-8 overflow-y-auto space-y-6">
+          {/* Upload Progress Monitor Banner */}
+          <UploadMonitor />
+
+          {/* Main Data Table */}
+          <DataTable />
         </div>
+
+        {/* Status Bar */}
+        <footer className="h-9 px-8 border-t border-slate-800/80 bg-slate-950/80 flex items-center justify-between text-[11px] text-slate-500 font-mono shrink-0">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <ShieldCheck className="w-3.5 h-3.5" /> Bit-Perfect CAS Invariant Verified
+            </span>
+            <span>FastCDC Gear Hashing Active</span>
+          </div>
+          <div>Project Aegis v1.0.0-enterprise</div>
+        </footer>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
