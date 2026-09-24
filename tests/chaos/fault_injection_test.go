@@ -3,7 +3,6 @@ package chaos_test
 import (
 	"context"
 	"errors"
-	"net/http"
 	"testing"
 	"time"
 )
