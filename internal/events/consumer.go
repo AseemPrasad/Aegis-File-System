@@ -47,9 +47,9 @@ func NewDerivationConsumer(cfg ConsumerConfig, pool *derivation.WorkerPool) (*De
 		Brokers:        cfg.Brokers,
 		GroupID:        cfg.GroupID,
 		Topic:          cfg.Topic,
-		MinBytes:       10B,
-		MaxBytes:       10MB,
-		CommitInterval: 0, // Manual explicit offset commits
+		MinBytes:       10,
+		MaxBytes:       10 << 20, // 10MB
+		CommitInterval: 0,       // Manual explicit offset commits
 	})
 
 	dlqWriter := &kafka.Writer{
@@ -111,8 +111,8 @@ func (c *DerivationConsumer) processMessage(ctx context.Context, msg kafka.Messa
 
 	results := c.pool.ProcessEvent(ctx, event)
 	for _, res := range results {
-		if res.Error != nil && !res.Success {
-			return fmt.Errorf("worker %s failed: %w", res.WorkerName, res.Error)
+		if res.Status == derivation.StatusFailed {
+			return fmt.Errorf("worker %s failed: %s", res.WorkerName, res.Error)
 		}
 	}
 
