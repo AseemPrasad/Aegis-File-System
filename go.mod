@@ -18,7 +18,7 @@
 
 module github.com/aegis-dev/aegis
 
-go 1.25.0
+go 1.25.11
 
 require (
 	// UUID generation (tenant_id, node_id, session_id, version_id).
@@ -35,7 +35,7 @@ require (
 	// Memory/GC: statement descriptions cached → no per-exec parse round trip;
 	//   binary encoding avoids []byte→string churn that inflates GC pressure
 	//   under the 1000-concurrent-client load target (SLA row 2).
-	github.com/jackc/pgx/v5 v5.7.1
+	github.com/jackc/pgx/v5 v5.9.2
 
 	// Prometheus metrics (contract IC-3 observability; SLA verification).
 	github.com/prometheus/client_golang v1.20.0
@@ -57,7 +57,7 @@ require (
 
 	// errgroup for bounded concurrent chunk fan-out in tests/utilities.
 	golang.org/x/sync v0.22.0
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 )
 
 require (
@@ -89,6 +89,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/golang-migrate/migrate/v4 v4.20.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -96,11 +97,12 @@ require (
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
-	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/pierrec/lz4/v4 v4.1.16 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
