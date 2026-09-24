@@ -2,9 +2,13 @@
 -- 1. Declarative 16-way Hash Partitioning on block_hash for cas_blocks
 CREATE TABLE cas_blocks_partitioned (
     block_hash VARCHAR(64) NOT NULL,
+    tenant_id UUID NOT NULL,
     size_bytes INT NOT NULL,
-    ref_count BIGINT NOT NULL DEFAULT 1,
+    storage_tier VARCHAR(32) NOT NULL DEFAULT 'HOT',
+    ref_count BIGINT NOT NULL DEFAULT 0,
+    verified BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (block_hash)
 ) PARTITION BY HASH (block_hash);
 
