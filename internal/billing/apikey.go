@@ -36,13 +36,12 @@ func GenerateAPIKey(tenantID, name string, isTest bool, scopes []string, expires
 	}
 
 	record := &APIKeyRecord{
-		ID:        keyID,
+		KeyID:     keyID,
 		TenantID:  tenantID,
 		Name:      name,
 		KeyHash:   keyHash,
-		Prefix:    rawKey[:16] + "...",
-		Scopes:    scopes,
-		IsActive:  true,
+		KeyPrefix: rawKey[:16] + "...",
+		Scopes:    strings.Join(scopes, ","),
 		CreatedAt: time.Now().UTC(),
 		ExpiresAt: expiresAt,
 	}
@@ -62,24 +61,22 @@ func ValidateAPIKey(keyRecord *APIKeyRecord, requiredScope string) error {
 		return fmt.Errorf("api key record is nil")
 	}
 
-	if !keyRecord.IsActive {
-		return fmt.Errorf("api key %s is inactive or revoked", keyRecord.ID)
-	}
-
 	if keyRecord.ExpiresAt != nil && time.Now().UTC().After(*keyRecord.ExpiresAt) {
-		return fmt.Errorf("api key %s expired at %s", keyRecord.ID, keyRecord.ExpiresAt.Format(time.RFC3339))
+		return fmt.Errorf("api key %s expired at %s", keyRecord.KeyID, keyRecord.ExpiresAt.Format(time.RFC3339))
 	}
 
 	if requiredScope != "" {
+		scopes := strings.Split(keyRecord.Scopes, ",")
 		hasScope := false
-		for _, scope := range keyRecord.Scopes {
-			if scope == requiredScope || scope == "admin" || scope == "*" {
+		for _, scope := range scopes {
+			s := strings.TrimSpace(scope)
+			if s == requiredScope || s == "admin" || s == "*" {
 				hasScope = true
 				break
 			}
 		}
 		if !hasScope {
-			return fmt.Errorf("api key %s lacks required scope: %s", keyRecord.ID, requiredScope)
+			return fmt.Errorf("api key %s lacks required scope: %s", keyRecord.KeyID, requiredScope)
 		}
 	}
 

@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -108,13 +107,12 @@ func (h *StripeWebhookHandler) HandleEvent(event *StripeWebhookEvent) error {
 		statusStr, _ := obj["status"].(string)
 
 		rec := &SubscriptionRecord{
-			ID:                 subID,
-			TenantID:           custID, // mapped to tenant
-			StripeCustomerID:   custID,
-			StripeSubscription: subID,
-			PlanTier:           PlanEnterprise,
-			Status:             SubscriptionStatus(statusStr),
-			UpdatedAt:          time.Now().UTC(),
+			SubscriptionID:       subID,
+			TenantID:             custID, // mapped to tenant
+			StripeCustomerID:     custID,
+			StripeSubscriptionID: subID,
+			PlanTier:             PlanEnterprise,
+			Status:               statusStr,
 		}
 
 		if h.onSubUpdated != nil {
@@ -127,13 +125,12 @@ func (h *StripeWebhookHandler) HandleEvent(event *StripeWebhookEvent) error {
 		custID, _ := obj["customer"].(string)
 
 		rec := &SubscriptionRecord{
-			ID:                 subID,
-			TenantID:           custID,
-			StripeCustomerID:   custID,
-			StripeSubscription: subID,
-			PlanTier:           PlanFree,
-			Status:             StatusCanceled,
-			UpdatedAt:          time.Now().UTC(),
+			SubscriptionID:       subID,
+			TenantID:             custID,
+			StripeCustomerID:     custID,
+			StripeSubscriptionID: subID,
+			PlanTier:             PlanFree,
+			Status:               "CANCELED",
 		}
 
 		if h.onSubUpdated != nil {
