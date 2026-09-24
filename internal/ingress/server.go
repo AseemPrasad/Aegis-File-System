@@ -21,6 +21,7 @@ type Config struct {
 	EndpointID  string        // edge PoP ID for pre-signed URLs (AEGIS_ENDPOINT_ID)
 	MaxBodySize int64         // max request body size in bytes (default 100MB)
 	GracePeriod time.Duration // shutdown grace period
+	RateLimiter *RateLimiter  // optional per-tenant rate limiter
 }
 
 func (c *Config) applyDefaults() {
@@ -94,8 +95,17 @@ func NewIngressServer(
 func (s *IngressServer) SetupRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /healthz", s.handleHealthz)
 	mux.HandleFunc("GET /readyz", s.handleReadyz)
-	mux.HandleFunc("POST /api/v1/ingest/initiate", s.wrap(s.handleInitiate))
-	mux.HandleFunc("POST /api/v1/ingest/commit", s.wrap(s.handleCommit))
+
+	initiateHandler := s.wrap(s.handleInitiate)
+	commitHandler := s.wrap(s.handleCommit)
+
+	if s.cfg.RateLimiter != nil {
+		initiateHandler = s.cfg.RateLimiter.AllowHTTP(initiateHandler).ServeHTTP
+		commitHandler = s.cfg.RateLimiter.AllowHTTP(commitHandler).ServeHTTP
+	}
+
+	mux.HandleFunc("POST /api/v1/ingest/initiate", initiateHandler)
+	mux.HandleFunc("POST /api/v1/ingest/commit", commitHandler)
 }
 
 // StartSessionReaper launches a background goroutine that periodically
